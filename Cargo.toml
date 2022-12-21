@@ -1,5 +1,5 @@
 [package]
-name = "stellar_empire_legacy_core"
+name = "intercosmic_empire_core"
 version = "0.1.0"
 edition = "2021"
 authors = ["Aleksandr Kugushev kugushew@gmail.com"]
@@ -7,7 +7,11 @@ authors = ["Aleksandr Kugushev kugushew@gmail.com"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-crate-type = ["cdylib"]
-
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+vecmath = "1.0.0"
+interoptopus = "0.14.15"
+
+[dev-dependencies]
+interoptopus_backend_csharp = "0.14.15"
