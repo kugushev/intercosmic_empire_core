@@ -1,9 +1,12 @@
 #![allow(non_snake_case)]
 
 mod steering;
+mod obstacle;
 
 use interoptopus::{ffi_function, ffi_type, Inventory, InventoryBuilder, function};
 use glam::Vec3;
+use interoptopus::patterns::slice::FFISlice;
+use crate::obstacle::Obstacle;
 
 
 #[ffi_type]
@@ -23,7 +26,7 @@ impl ICEVector3 {
         }
     }
 
-    fn map(self) -> Vec3 {
+    fn map(&self) -> Vec3 {
         Vec3 {
             x: self.x,
             y: self.y,
@@ -46,9 +49,27 @@ pub extern "C" fn ICESteeringSeek(position: ICEVector3, target: ICEVector3, mass
     return ICEVector3::new(result);
 }
 
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ICESteeringAvoid(obstaclesSlice: FFISlice<Obstacle>, position: ICEVector3, mass: f32, maxSpeed: f32, deltaTime: f32,
+                                   currentVelocity: ICEVector3) -> ICEVector3 {
+    let obstacles = obstaclesSlice.as_slice();
+
+    let result = steering::avoid(obstacles, position.map(), mass, maxSpeed, deltaTime, currentVelocity.map());
+    return ICEVector3::new(result);
+}
+
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn pattern_ffi_slice_1(ffi_slice: FFISlice<u32>) -> u32 {
+    ffi_slice.as_slice().len() as u32
+}
+
+
 pub fn my_inventory() -> Inventory {
     InventoryBuilder::new()
         .register(function!(ICEHelloFromRust))
         .register(function!(ICESteeringSeek))
+        .register(function!(ICESteeringAvoid))
         .inventory()
 }

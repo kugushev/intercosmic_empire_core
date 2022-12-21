@@ -25,6 +25,9 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICESteeringSeek")]
         public static extern ICEVector3 ICESteeringSeek(ICEVector3 position, ICEVector3 target, float mass, float maxSpeed, ICEVector3 currentVelocity);
 
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICESteeringAvoid")]
+        public static extern ICEVector3 ICESteeringAvoid(SliceObstacle obstaclesSlice, ICEVector3 position, float mass, float maxSpeed, float deltaTime, ICEVector3 currentVelocity);
+
     }
 
     [Serializable]
@@ -35,6 +38,73 @@ namespace AK.Scripts.Core.Native
         float y;
         float z;
     }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct Obstacle
+    {
+        public ICEVector3 position;
+        public float radius;
+    }
+
+    ///A pointer to an array of data someone else owns which may not be modified.
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct SliceObstacle
+    {
+        ///Pointer to start of immutable data.
+        IntPtr data;
+        ///Number of elements.
+        ulong len;
+    }
+
+    public partial struct SliceObstacle : IEnumerable<Obstacle>
+    {
+        public SliceObstacle(GCHandle handle, ulong count)
+        {
+            this.data = handle.AddrOfPinnedObject();
+            this.len = count;
+        }
+        public SliceObstacle(IntPtr handle, ulong count)
+        {
+            this.data = handle;
+            this.len = count;
+        }
+        public Obstacle this[int i]
+        {
+            get
+            {
+                if (i >= Count) throw new IndexOutOfRangeException();
+                var size = Marshal.SizeOf(typeof(Obstacle));
+                var ptr = new IntPtr(data.ToInt64() + i * size);
+                return Marshal.PtrToStructure<Obstacle>(ptr);
+            }
+        }
+        public Obstacle[] Copied
+        {
+            get
+            {
+                var rval = new Obstacle[len];
+                for (var i = 0; i < (int) len; i++) {
+                    rval[i] = this[i];
+                }
+                return rval;
+            }
+        }
+        public int Count => (int) len;
+        public IEnumerator<Obstacle> GetEnumerator()
+        {
+            for (var i = 0; i < (int)len; ++i)
+            {
+                yield return this[i];
+            }
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+    }
+
 
 
 
