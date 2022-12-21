@@ -19,9 +19,21 @@ namespace AK.Scripts.Core.Native
         }
 
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "hello_from_rust")]
-        public static extern int hello_from_rust(int a);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICEHelloFromRust")]
+        public static extern int ICEHelloFromRust(int a);
 
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICESteeringSeek")]
+        public static extern ICEVector3 ICESteeringSeek(ICEVector3 position, ICEVector3 target, float mass, float maxSpeed, ICEVector3 currentVelocity);
+
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct ICEVector3
+    {
+        float x;
+        float y;
+        float z;
     }
 
 

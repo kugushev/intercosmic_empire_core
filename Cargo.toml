@@ -10,7 +10,7 @@ authors = ["Aleksandr Kugushev kugushew@gmail.com"]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-vecmath = "1.0.0"
+glam = "0.22.0"
 interoptopus = "0.14.15"
 
 [dev-dependencies]
