@@ -12,7 +12,7 @@ namespace AK.Scripts.Core.Native
 {
     public static partial class Interop
     {
-        public const string NativeLib = "intercosmic_empire_core";
+        public const string NativeLib = "IntercosmicEmpireCore";
 
         static Interop()
         {

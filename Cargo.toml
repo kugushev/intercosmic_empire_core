@@ -7,11 +7,13 @@ authors = ["Aleksandr Kugushev kugushew@gmail.com"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
+name = "IntercosmicEmpireCore"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 glam = "0.22.0"
 interoptopus = "0.14.15"
+bevy_ecs = "0.9.1"
 
 [dev-dependencies]
 interoptopus_backend_csharp = "0.14.15"
