@@ -12,7 +12,7 @@ namespace AK.Scripts.Core.Native
 {
     public static partial class Interop
     {
-        public const string NativeLib = "IntercosmicEmpireCore";
+        public const string NativeLib = "intercosmic_empire_core";
 
         static Interop()
         {
@@ -23,17 +23,22 @@ namespace AK.Scripts.Core.Native
         public static extern int ICEHelloFromRust(int a);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICESteeringSeek")]
-        public static extern ICEVector3 ICESteeringSeek(ICEVector3 position, ICEVector3 target, float mass, float maxSpeed, ICEVector3 currentVelocity);
+        public static extern FFIResult ICESteeringSeek(ref Vec3 position, ref Vec3 target, float mass, float maxSpeed, ref Vec3 currentVelocity, out Vec3 output);
 
+    }
+
+    public enum FFIResult
+    {
+        Ok = 0,
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct ICEVector3
+    public partial struct Vec3
     {
-        float x;
-        float y;
-        float z;
+        public float x;
+        public float y;
+        public float z;
     }
 
 

@@ -11,7 +11,7 @@ fn bindings_csharp() -> Result<(), Error> {
         ..Config::default()
     };
 
-    let inventory = IntercosmicEmpireCore::my_inventory();
+    let inventory = intercosmic_empire::my_inventory();
 
     Generator::new(config, inventory)
         .write_file("bindings/csharp/Interop.cs")?;
