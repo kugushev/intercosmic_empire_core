@@ -21,10 +21,8 @@ pub extern "C" fn ICEHelloFromRust(a: i32) -> i32 {
 #[ffi_function]
 #[ffi_surrogates(position = "vec3_read_ptr", target = "vec3_read_ptr", currentVelocity = "vec3_read_ptr", output = "vec3_read_write_ptr")]
 #[no_mangle]
-pub extern "C" fn ICESteeringSeek(position: Option<&Vec3>, target: Option<&Vec3>, mass: f32, maxSpeed: f32,
-                                  currentVelocity: Option<&Vec3>, output: Option<&mut Vec3>) -> FFIResult {
-    let output_ref = output.unwrap();
-    *output_ref = steering::seek(position.unwrap(), target.unwrap(), mass, maxSpeed,
-                                 currentVelocity.unwrap());
+pub extern "C" fn ICESteeringSeek(position: &Vec3, target: &Vec3, mass: f32, maxSpeed: f32,
+                                  currentVelocity: &Vec3, output: &mut Vec3) -> FFIResult {
+    *output = steering::seek(position, target, mass, maxSpeed, currentVelocity);
     FFIResult::Ok
 }

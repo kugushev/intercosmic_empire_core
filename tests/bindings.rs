@@ -6,8 +6,9 @@ fn bindings_csharp() -> Result<(), Error> {
     use interoptopus_backend_csharp::{Config, Generator};
 
     let config = Config {
-        dll_name: "intercosmic_empire_core".to_string(),
-        namespace_mappings: NamespaceMappings::new("AK.Scripts.Core.Native"),
+        dll_name: "intercosmic_empire".to_string(),
+        namespace_mappings: NamespaceMappings::new("AK.Scripts.Core.Native")
+            .add("UnityEngine", "UnityEngine"),
         ..Config::default()
     };
 

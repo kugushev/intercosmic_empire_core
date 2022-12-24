@@ -1,4 +1,4 @@
-use interoptopus::lang::c::{CompositeType, CType, Field, PrimitiveType};
+use interoptopus::lang::c::{CompositeType, CType, Documentation, Meta};
 
 pub fn vec3_read_ptr() -> CType {
     CType::ReadPointer(Box::new(vec3()))
@@ -9,12 +9,9 @@ pub fn vec3_read_write_ptr() -> CType {
 }
 
 fn vec3() -> CType {
-    let fields = vec![
-        Field::new("x".to_string(), CType::Primitive(PrimitiveType::F32)),
-        Field::new("y".to_string(), CType::Primitive(PrimitiveType::F32)),
-        Field::new("z".to_string(), CType::Primitive(PrimitiveType::F32)),
-    ];
-
-    let composite = CompositeType::new("Vec3".to_string(), fields);
+    let composite = CompositeType::with_meta("Vector3".to_string(), vec![],
+                                             Meta::with_namespace_documentation(
+                                                 "UnityEngine".to_string(),
+                                                 Documentation::new()));
     CType::Composite(composite)
 }

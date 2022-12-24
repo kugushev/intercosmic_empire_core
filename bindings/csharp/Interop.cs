@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AK.Scripts.Core.Native;
+using UnityEngine;
 #pragma warning restore 0105
 
 namespace AK.Scripts.Core.Native
@@ -23,22 +24,13 @@ namespace AK.Scripts.Core.Native
         public static extern int ICEHelloFromRust(int a);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICESteeringSeek")]
-        public static extern FFIResult ICESteeringSeek(ref Vec3 position, ref Vec3 target, float mass, float maxSpeed, ref Vec3 currentVelocity, out Vec3 output);
+        public static extern FFIResult ICESteeringSeek(ref Vector3 position, ref Vector3 target, float mass, float maxSpeed, ref Vector3 currentVelocity, out Vector3 output);
 
     }
 
     public enum FFIResult
     {
         Ok = 0,
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct Vec3
-    {
-        public float x;
-        public float y;
-        public float z;
     }
 
 
