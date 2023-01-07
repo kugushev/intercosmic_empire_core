@@ -13,7 +13,7 @@ namespace AK.Scripts.Core.Native
 {
     public static partial class Interop
     {
-        public const string NativeLib = "intercosmic_empire_core";
+        public const string NativeLib = "intercosmic_empire";
 
         static Interop()
         {
@@ -26,11 +26,42 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICESteeringSeek")]
         public static extern FFIResult ICESteeringSeek(ref Vector3 position, ref Vector3 target, float mass, float maxSpeed, ref Vector3 currentVelocity, out Vector3 output);
 
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICEInitGame")]
+        public static extern FFIResult ICEInitGame(ref IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICECloseGame")]
+        public static extern FFIResult ICECloseGame(ref IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICEInitBattle")]
+        public static extern void ICEInitBattle(IntPtr context, BattleParameters parameters);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICEBattleUpdate")]
+        public static extern IntPtr ICEBattleUpdate(IntPtr context, float deltaTime);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ICEGetBattleViewModel")]
+        public static extern IntPtr ICEGetBattleViewModel(IntPtr context);
+
     }
 
     public enum FFIResult
     {
         Ok = 0,
+        NullPointerError = 1,
+        NotNullPointerError = 2,
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct BattleParameters
+    {
+        public int seed;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct BattleViewModel
+    {
+        public Vector3 test_position;
     }
 
 
