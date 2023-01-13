@@ -1,5 +1,4 @@
 use bevy_ecs::prelude::*;
-use crate::game::battle::models::battle_view_model::BattleViewModel;
 use crate::game::battle::systems::test_system::test_system;
 use crate::game::battle::systems::view_sync::view_sync_translation;
 use crate::game::battle::utils::game_time::GameTime;
@@ -10,21 +9,25 @@ pub(crate) struct EcsContext {
 }
 
 impl EcsContext {
-    pub(crate) fn new(view_model: BattleViewModel) -> EcsContext {
+    pub(crate) fn new() -> EcsContext {
         let mut world = World::new();
         world.insert_resource(GameTime::default());
-        world.insert_resource(view_model);
 
         let mut schedule = Schedule::default();
 
         #[derive(StageLabel)]
-        pub struct UpdateLabel;
+        pub struct MainLabel;
 
-        let stage = SystemStage::single_threaded()
-            .with_system(test_system)
+        let main_stage = SystemStage::single_threaded()
+            .with_system(test_system);
+
+        schedule.add_stage(MainLabel, main_stage);
+
+        #[derive(StageLabel)]
+        pub struct ViewSyncLabel;
+        let view_sync_stage = SystemStage::single_threaded()
             .with_system(view_sync_translation);
-
-        schedule.add_stage(UpdateLabel, stage);
+        schedule.add_stage_after(MainLabel, ViewSyncLabel, view_sync_stage);
 
         EcsContext {
             world,
