@@ -1,2 +1,2 @@
-pub(super) mod test_system;
-pub(super) mod view_sync;
+pub(crate) mod view_sync;
+pub(crate) mod stellar;

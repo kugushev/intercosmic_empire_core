@@ -52,3 +52,9 @@ pub struct StellarSystemViewModel<'a> {
 pub struct BattleViewModelRef<'a> {
     pub view_model: &'a BattleViewModel,
 }
+
+impl FFIOutcome {
+    pub fn assert(&self, expected: FFIOutcome){
+        assert_eq!(*self, expected)
+    }
+}

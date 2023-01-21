@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::*;
-use crate::game::battle::systems::test_system::test_system;
+use crate::game::battle::systems::stellar::stellar_production_cycle::stellar_production_cycle;
 use crate::game::battle::systems::view_sync::view_sync_translation;
 use crate::game::battle::utils::game_time::GameTime;
 
@@ -19,7 +19,7 @@ impl EcsContext {
         pub struct MainLabel;
 
         let main_stage = SystemStage::single_threaded()
-            .with_system(test_system);
+            .with_system(stellar_production_cycle);
 
         schedule.add_stage(MainLabel, main_stage);
 
