@@ -24,45 +24,48 @@ namespace AK.Scripts.Core.Native
         public static extern int ice_hello_from_rust(int a);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_steering_seek")]
-        public static extern FFIResult ice_steering_seek(ref Vector3 position, ref Vector3 target, float mass, float max_speed, ref Vector3 current_velocity, out Vector3 output);
+        public static extern void ice_steering_seek(ref Vector3 position, ref Vector3 target, float mass, float max_speed, ref Vector3 current_velocity, out Vector3 output);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_init_game")]
-        public static extern FFIResult ice_init_game(ref IntPtr context);
+        public static extern FFIOutcome ice_init_game(ref IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_close_game")]
-        public static extern FFIResult ice_close_game(ref IntPtr context);
+        public static extern FFIOutcome ice_close_game(ref IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_last_error")]
+        public static extern IntPtr ice_get_last_error(IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_register_stellar_system")]
-        public static extern void ice_register_stellar_system(IntPtr context, StellarSystemId id, Sun sun, StellarSystemParameters parameters);
+        public static extern FFIOutcome ice_register_stellar_system(IntPtr context, StellarSystemId id, Sun sun, StellarSystemParameters parameters);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_register_planet")]
-        public static extern void ice_register_planet(IntPtr context, StellarSystemId id, Planet planet);
+        public static extern FFIOutcome ice_register_planet(IntPtr context, StellarSystemId id, Planet planet);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_start_battle")]
-        public static extern void ice_start_battle(IntPtr context, BattleParameters parameters);
+        public static extern FFIOutcome ice_start_battle(IntPtr context, BattleParameters parameters);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_open_warp_gate")]
-        public static extern void ice_battle_open_warp_gate(IntPtr context, WarpGate warp_gate);
+        public static extern FFIOutcome ice_battle_open_warp_gate(IntPtr context, WarpGate warp_gate);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_finish_battle")]
         public static extern void ice_finish_battle(IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_update")]
-        public static extern IntPtr ice_battle_update(IntPtr context, float delta_time);
+        public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_battle_view_model")]
-        public static extern IntPtr ice_get_battle_view_model(IntPtr context);
+        public static extern FFIResultBattleViewModelRef ice_get_battle_view_model(IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_battle_stellar_system_view_model")]
-        public static extern StellarSystemViewModel ice_get_battle_stellar_system_view_model(IntPtr context);
+        public static extern FFIResultStellarSystemViewModel ice_get_battle_stellar_system_view_model(IntPtr context);
 
     }
 
-    public enum FFIResult
+    public enum FFIOutcome
     {
         Ok = 0,
-        NullPointerError = 1,
-        NotNullPointerError = 2,
+        Unable = 1,
+        Error = 2,
     }
 
     public enum Faction
@@ -101,6 +104,29 @@ namespace AK.Scripts.Core.Native
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    public partial struct BattleViewModelRef
+    {
+        public IntPtr view_model;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFIResultBattleViewModelRef
+    {
+        public BattleViewModelRef value;
+        public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFIResultStellarSystemViewModel
+    {
+        public StellarSystemViewModel value;
+        public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public partial struct Orbit
     {
         public float radius;
@@ -116,6 +142,7 @@ namespace AK.Scripts.Core.Native
         public PlanetInfo info;
         public Vector3 position;
         public Faction faction;
+        public float current_product;
     }
 
     [Serializable]
@@ -189,6 +216,7 @@ namespace AK.Scripts.Core.Native
         public Vector3 position;
         public Faction faction;
         public Production production;
+        public float current_product;
     }
 
     ///A pointer to an array of data someone else owns which may not be modified.

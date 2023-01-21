@@ -12,4 +12,5 @@ pub struct WarpGate {
     pub position: Vec3,
     pub faction: Faction,
     pub production: Production,
+    pub current_product: f32,
 }

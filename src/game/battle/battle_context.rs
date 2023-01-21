@@ -10,7 +10,7 @@ use crate::game::core::models::stellar_system::{StellarSystem};
 #[ffi_type(opaque)]
 pub struct BattleContext {
     pub(crate) ecs: EcsContext,
-    pub(crate) warp_gates: Vec<WarpGate>
+    pub(crate) warp_gates: Vec<WarpGate>,
 }
 
 impl BattleContext {
@@ -28,7 +28,7 @@ impl BattleContext {
 
         BattleContext {
             ecs,
-            warp_gates: vec![]
+            warp_gates: vec![],
         }
     }
 
@@ -38,7 +38,7 @@ impl BattleContext {
     pub(crate) fn get_stellar_system(&self) -> &StellarSystem {
         self.ecs.world.resource::<StellarSystem>()
     }
-    pub(crate) fn open_warp_gate(&mut self, warp_gate: WarpGate){
+    pub(crate) fn open_warp_gate(&mut self, warp_gate: WarpGate) {
         // todo: assert distance between planet and other warp gates
         self.warp_gates.push(warp_gate)
     }

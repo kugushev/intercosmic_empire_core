@@ -1,10 +1,10 @@
 use interoptopus::{function, Inventory, InventoryBuilder};
 
-mod ffi;
-mod steering;
-mod ffi_ext;
-mod game;
-mod ffi_models;
+pub mod ffi;
+pub mod steering;
+pub mod ffi_ext;
+pub mod game;
+pub mod ffi_models;
 
 pub fn my_inventory() -> Inventory {
     InventoryBuilder::new()
@@ -12,6 +12,7 @@ pub fn my_inventory() -> Inventory {
         .register(function!(ffi::ice_steering_seek))
         .register(function!(ffi::ice_init_game))
         .register(function!(ffi::ice_close_game))
+        .register(function!(ffi::ice_get_last_error))
         .register(function!(ffi::ice_register_stellar_system))
         .register(function!(ffi::ice_register_planet))
         .register(function!(ffi::ice_start_battle))

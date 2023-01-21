@@ -9,7 +9,7 @@ pub struct StellarSystem {
     pub id: StellarSystemId,
     pub sun: Sun,
     pub parameters: StellarSystemParameters,
-    pub planets: Vec<Planet>
+    pub planets: Vec<Planet>,
 }
 
 #[ffi_type]
@@ -31,8 +31,8 @@ pub struct StellarSystemParameters {
     pub max_planets: i32,
 }
 
-impl StellarSystemParameters {
-    pub fn new() -> StellarSystemParameters {
+impl Default for StellarSystemParameters {
+    fn default() -> Self {
         StellarSystemParameters {
             system_radius: 0.8,
             min_distance_to_sun: 0.1,
@@ -62,6 +62,7 @@ pub struct Planet {
     pub info: PlanetInfo,
     pub position: Vec3,
     pub faction: Faction,
+    pub current_product: f32,
 }
 
 #[ffi_type]
