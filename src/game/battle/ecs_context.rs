@@ -1,7 +1,9 @@
 use bevy_ecs::prelude::*;
+use crate::ffi_models::FFILog;
 use crate::game::battle::systems::stellar::stellar_production_cycle::stellar_production_cycle;
 use crate::game::battle::systems::view_sync::view_sync_translation;
 use crate::game::battle::utils::game_time::GameTime;
+use crate::game::battle::utils::interop_logger::InteropLogger;
 
 pub(crate) struct EcsContext {
     pub(super) world: World,
@@ -12,6 +14,7 @@ impl EcsContext {
     pub(crate) fn new() -> EcsContext {
         let mut world = World::new();
         world.insert_resource(GameTime::default());
+        world.insert_resource(InteropLogger::default());
 
         let mut schedule = Schedule::default();
 
@@ -35,9 +38,13 @@ impl EcsContext {
         }
     }
 
-    pub(crate) fn update(&mut self, delta_time: f32) {
+    pub(crate) fn update(&mut self, delta_time: f32, log: FFILog) {
         let mut time = self.world.resource_mut::<GameTime>();
         time.delta_time = delta_time;
+
+        let mut interop_logger = self.world.resource_mut::<InteropLogger>();
+        interop_logger.ffi_log = log;
+        interop_logger.log("Do Update".to_string());
 
         self.schedule.run(&mut self.world);
     }

@@ -1,9 +1,12 @@
 use std::mem::MaybeUninit;
-use interoptopus::ffi_type;
+use interoptopus::{callback, ffi_type};
 use interoptopus::patterns::slice::FFISlice;
+use interoptopus::patterns::string::AsciiPointer;
 use crate::game::battle::models::warp_gate::WarpGate;
 use crate::game::core::models::stellar_system::{Planet, StellarSystemId, StellarSystemParameters, Sun};
 use crate::game::battle::models::battle_view_model::BattleViewModel;
+
+callback!(FFILog(log: AsciiPointer) -> u8);
 
 #[ffi_type]
 #[repr(C)]

@@ -2,7 +2,7 @@ use std::ops::Index;
 use std::ptr;
 use glam::Vec3;
 use intercosmic_empire::ffi::{ice_battle_update, ice_get_battle_stellar_system_view_model, ice_init_game, ice_register_planet, ice_register_stellar_system, ice_start_battle};
-use intercosmic_empire::ffi_models::{FFIOutcome, FFIResult, StellarSystemViewModel};
+use intercosmic_empire::ffi_models::{FFILog, FFIOutcome, FFIResult, StellarSystemViewModel};
 use intercosmic_empire::game::game_context::GameContext;
 use intercosmic_empire::game::battle::models::battle_parameters::BattleParameters;
 use intercosmic_empire::game::core::models::faction::Faction;
@@ -40,7 +40,7 @@ fn battle_planets_production() {
     }).assert(FFIOutcome::Ok);
 
     // assert
-    ice_battle_update(game_context, 1.0).assert(FFIOutcome::Ok);
+    ice_battle_update(game_context, 1.0, FFILog::default()).assert(FFIOutcome::Ok);
 
     {
         let view_model = ice_get_battle_stellar_system_view_model(game_context);
@@ -48,7 +48,7 @@ fn battle_planets_production() {
         assert_eq!(2.0, planet.current_product);
     }
 
-    ice_battle_update(game_context, 0.5).assert(FFIOutcome::Ok);
+    ice_battle_update(game_context, 0.5, FFILog::default()).assert(FFIOutcome::Ok);
 
     {
         let view_model = ice_get_battle_stellar_system_view_model(game_context);

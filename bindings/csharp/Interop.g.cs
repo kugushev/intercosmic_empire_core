@@ -35,6 +35,12 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_last_error")]
         public static extern IntPtr ice_get_last_error(IntPtr context);
 
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_last_log")]
+        public static extern IntPtr ice_get_last_log(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_subscribe_log_signal")]
+        public static extern void ice_subscribe_log_signal(IntPtr context, FFILog log_delegate);
+
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_register_stellar_system")]
         public static extern FFIOutcome ice_register_stellar_system(IntPtr context, StellarSystemId id, Sun sun, StellarSystemParameters parameters);
 
@@ -51,7 +57,7 @@ namespace AK.Scripts.Core.Native
         public static extern void ice_finish_battle(IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_update")]
-        public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time);
+        public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time, FFILog log);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_battle_view_model")]
         public static extern FFIResultBattleViewModelRef ice_get_battle_view_model(IntPtr context);
@@ -336,6 +342,9 @@ namespace AK.Scripts.Core.Native
         }
     }
 
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate byte FFILog(string log);
 
 
 

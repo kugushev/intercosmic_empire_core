@@ -5,7 +5,7 @@ use interoptopus::patterns::slice::FFISlice;
 use interoptopus::patterns::string::AsciiPointer;
 use crate::steering;
 use crate::ffi_ext::*;
-use crate::ffi_models::{BattleViewModelRef, FFIOutcome, FFIResult, StellarSystemViewModel};
+use crate::ffi_models::{BattleViewModelRef, FFIOutcome, FFIResult, FFILog, StellarSystemViewModel};
 use crate::game::battle::models::battle_parameters::BattleParameters;
 use crate::game::battle::models::warp_gate::WarpGate;
 use crate::game::core::models::stellar_system::{Planet, StellarSystemId, StellarSystemParameters, Sun};
@@ -65,6 +65,18 @@ pub extern "C" fn ice_get_last_error(context: &GameContext) -> AsciiPointer {
 
 #[ffi_function]
 #[no_mangle]
+pub extern "C" fn ice_get_last_log(context: &GameContext) -> AsciiPointer {
+    AsciiPointer::from_cstr(&context.last_log_msg)
+}
+
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_subscribe_log_signal(context: &mut GameContext, log_delegate: FFILog) {
+    context.log_signal_delegate = Some(log_delegate);
+}
+
+#[ffi_function]
+#[no_mangle]
 pub extern "C" fn ice_register_stellar_system(context: &mut GameContext, id: StellarSystemId, sun: Sun, parameters: StellarSystemParameters) -> FFIOutcome {
     context.guard(|ctx| {
         ctx.register_stellar_system(id, sun, parameters)
@@ -108,13 +120,13 @@ pub extern "C" fn ice_finish_battle(context: &mut GameContext) {
 
 #[ffi_function]
 #[no_mangle]
-pub extern "C" fn ice_battle_update(context: &mut GameContext, delta_time: f32) -> FFIOutcome {
+pub extern "C" fn ice_battle_update(context: &mut GameContext, delta_time: f32, log: FFILog) -> FFIOutcome {
     if context.battle_context.is_none() {
         return FFIOutcome::Unable;
     }
 
     context.guard(|ctx| {
-        ctx.battle_context.as_mut().unwrap().ecs.update(delta_time);
+        ctx.battle_context.as_mut().unwrap().ecs.update(delta_time, log);
         Ok(())
     })
 }
@@ -139,6 +151,7 @@ pub extern "C" fn ice_get_battle_stellar_system_view_model(context: &mut GameCon
     match context.battle_context.as_ref() {
         Some(battle_ctx) => {
             let stellar_system = battle_ctx.get_stellar_system();
+
             FFIResult::ok(StellarSystemViewModel {
                 id: stellar_system.id,
                 sun: &stellar_system.sun,

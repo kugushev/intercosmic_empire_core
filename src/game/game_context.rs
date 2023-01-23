@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::ffi::CString;
 use std::panic;
 use interoptopus::ffi_type;
-use crate::ffi_models::FFIOutcome;
+use crate::ffi_models::{FFIOutcome, FFILog};
 use crate::game::battle::battle_context::BattleContext;
 use crate::game::battle::models::battle_parameters::BattleParameters;
 use crate::game::core::models::stellar_system::{Planet, StellarSystem, StellarSystemId, StellarSystemParameters, Sun};
@@ -12,6 +12,8 @@ pub struct GameContext {
     pub(crate) battle_context: Option<BattleContext>,
     stellar_map: HashMap<StellarSystemId, StellarSystem>,
     pub(crate) last_error_msg: CString,
+    pub(crate) last_log_msg: CString,
+    pub log_signal_delegate: Option<FFILog>,
 }
 
 impl GameContext {
@@ -20,6 +22,8 @@ impl GameContext {
             battle_context: None,
             stellar_map: HashMap::new(),
             last_error_msg: CString::default(),
+            last_log_msg: CString::default(),
+            log_signal_delegate: None
         }
     }
 
