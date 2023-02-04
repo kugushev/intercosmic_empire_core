@@ -60,7 +60,7 @@ namespace AK.Scripts.Core.Native
         public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time, FFILog log);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_battle_view_model")]
-        public static extern FFIResultBattleViewModelRef ice_get_battle_view_model(IntPtr context);
+        public static extern FFIResultBattleStateViewModel ice_get_battle_view_model(IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_battle_stellar_system_view_model")]
         public static extern FFIResultStellarSystemViewModel ice_get_battle_stellar_system_view_model(IntPtr context);
@@ -103,23 +103,16 @@ namespace AK.Scripts.Core.Native
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct BattleViewModel
+    public partial struct BattleStateViewModel
     {
-        public Vector3 test_position;
+        public SliceWarpGate warp_gates;
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct BattleViewModelRef
+    public partial struct FFIResultBattleStateViewModel
     {
-        public IntPtr view_model;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct FFIResultBattleViewModelRef
-    {
-        public BattleViewModelRef value;
+        public BattleStateViewModel value;
         public FFIOutcome outcome;
     }
 
@@ -204,7 +197,6 @@ namespace AK.Scripts.Core.Native
         public IntPtr sun;
         public IntPtr parameters;
         public SlicePlanet planets;
-        public SliceWarpGate warp_gates;
     }
 
     [Serializable]

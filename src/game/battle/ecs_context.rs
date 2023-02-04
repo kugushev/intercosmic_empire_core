@@ -1,7 +1,6 @@
 use bevy_ecs::prelude::*;
 use crate::ffi_models::FFILog;
 use crate::game::battle::systems::stellar::stellar_production_cycle::stellar_production_cycle;
-use crate::game::battle::systems::view_sync::view_sync_translation;
 use crate::game::battle::utils::game_time::GameTime;
 use crate::game::battle::utils::interop_logger::InteropLogger;
 
@@ -28,8 +27,7 @@ impl EcsContext {
 
         #[derive(StageLabel)]
         pub struct ViewSyncLabel;
-        let view_sync_stage = SystemStage::single_threaded()
-            .with_system(view_sync_translation);
+        let view_sync_stage = SystemStage::single_threaded();
         schedule.add_stage_after(MainLabel, ViewSyncLabel, view_sync_stage);
 
         EcsContext {
@@ -44,7 +42,10 @@ impl EcsContext {
 
         let mut interop_logger = self.world.resource_mut::<InteropLogger>();
         interop_logger.ffi_log = log;
-        interop_logger.log("Do Update".to_string());
+
+        if interop_logger.trace_enabled {
+            interop_logger.log("Do Update".to_string());
+        }
 
         self.schedule.run(&mut self.world);
     }

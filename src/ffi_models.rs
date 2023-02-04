@@ -2,9 +2,9 @@ use std::mem::MaybeUninit;
 use interoptopus::{callback, ffi_type};
 use interoptopus::patterns::slice::FFISlice;
 use interoptopus::patterns::string::AsciiPointer;
-use crate::game::battle::models::warp_gate::WarpGate;
+use crate::game::battle::components::stellar::warp_gate::WarpGate;
 use crate::game::core::models::stellar_system::{Planet, StellarSystemId, StellarSystemParameters, Sun};
-use crate::game::battle::models::battle_view_model::BattleViewModel;
+use crate::game::battle::models::battle_state::BattleState;
 
 callback!(FFILog(log: AsciiPointer) -> u8);
 
@@ -46,14 +46,20 @@ pub struct StellarSystemViewModel<'a> {
     pub id: StellarSystemId,
     pub sun: &'a Sun,
     pub parameters: &'a StellarSystemParameters,
-    pub planets: FFISlice<'a, Planet>,
-    pub warp_gates: FFISlice<'a, WarpGate>,
+    pub planets: FFISlice<'a, Planet>
 }
+
 
 #[ffi_type]
 #[repr(C)]
-pub struct BattleViewModelRef<'a> {
-    pub view_model: &'a BattleViewModel,
+pub struct BattleStateViewModel<'a> {
+    pub warp_gates: FFISlice<'a, WarpGate>
+}
+
+impl<'a> BattleStateViewModel<'a> {
+    pub fn from(view_state: &BattleState) -> BattleStateViewModel { BattleStateViewModel {
+        warp_gates: FFISlice::from_slice(&view_state.warp_gates)
+    }}
 }
 
 impl FFIOutcome {
