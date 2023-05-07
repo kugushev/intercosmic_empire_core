@@ -2,10 +2,12 @@ use std::collections::HashMap;
 use std::ffi::CString;
 use std::panic;
 use interoptopus::ffi_type;
-use crate::ffi_models::{FFIOutcome, FFILog};
+use crate::ffi_models::{FFIOutcome, FFILog, RouteBuildersSource};
 use crate::game::battle::battle_context::BattleContext;
 use crate::game::battle::models::battle_parameters::BattleParameters;
 use crate::game::core::models::stellar_system::{Planet, StellarSystem, StellarSystemId, StellarSystemParameters, Sun};
+
+use super::battle::models::route::RouteBuilder;
 
 #[ffi_type(opaque)]
 pub struct GameContext {
@@ -14,6 +16,7 @@ pub struct GameContext {
     pub(crate) last_error_msg: CString,
     pub(crate) last_log_msg: CString,
     pub log_signal_delegate: Option<FFILog>,
+    pub route_builders: HashMap<RouteBuildersSource, Option<RouteBuilder>>
 }
 
 impl GameContext {
@@ -23,7 +26,8 @@ impl GameContext {
             stellar_map: HashMap::new(),
             last_error_msg: CString::default(),
             last_log_msg: CString::default(),
-            log_signal_delegate: None
+            log_signal_delegate: None,
+            route_builders: HashMap::new()
         }
     }
 

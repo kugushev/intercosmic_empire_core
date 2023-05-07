@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::Resource;
+use crate::game::battle::models::warp_gate::WarpGate;
 
-use crate::game::battle::components::stellar::warp_gate::WarpGate;
 
 #[derive(Default, Resource)]
 pub struct BattleState {

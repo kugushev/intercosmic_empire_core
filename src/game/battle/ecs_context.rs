@@ -18,12 +18,15 @@ impl EcsContext {
         let mut schedule = Schedule::default();
 
         #[derive(StageLabel)]
-        pub struct MainLabel;
+        pub struct InputLabel;
+        let input_stage = SystemStage::single_threaded();
+        schedule.add_stage(InputLabel, input_stage);
 
+        #[derive(StageLabel)]
+        pub struct MainLabel;
         let main_stage = SystemStage::single_threaded()
             .with_system(stellar_production_cycle);
-
-        schedule.add_stage(MainLabel, main_stage);
+        schedule.add_stage_after(InputLabel, MainLabel, main_stage);
 
         #[derive(StageLabel)]
         pub struct ViewSyncLabel;

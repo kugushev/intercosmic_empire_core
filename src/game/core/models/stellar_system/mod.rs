@@ -1,8 +1,13 @@
 use bevy_ecs::prelude::Resource;
-use interoptopus::{ffi_type, ffi_surrogates};
+use interoptopus::{ffi_surrogates, ffi_type};
 use glam::Vec3;
+use spaceport::Spaceport;
 use crate::ffi_ext::vec3;
 use crate::game::core::models::faction::Faction;
+use crate::game::core::models::stellar_system::production::Productive;
+
+pub mod spaceport;
+pub mod production;
 
 #[derive(Resource, Clone)]
 pub struct StellarSystem {
@@ -63,6 +68,13 @@ pub struct Planet {
     pub position: Vec3,
     pub faction: Faction,
     pub current_product: f32,
+    pub under_siege: bool,
+}
+
+impl Productive for Planet {
+    fn current_product(&mut self) -> &mut f32 {
+        &mut self.current_product
+    }
 }
 
 #[ffi_type]
@@ -78,6 +90,7 @@ pub struct PlanetInfo {
     pub orbit: Orbit,
     pub size: PlanetSize,
     pub production: Production,
+    pub spaceport: Spaceport,
 }
 
 #[ffi_type]

@@ -3,14 +3,24 @@ use std::ptr;
 use glam::Vec3;
 use intercosmic_empire::ffi::{ice_battle_open_warp_gate, ice_battle_update, ice_get_battle_stellar_system_view_model, ice_get_battle_view_model, ice_init_game, ice_register_planet, ice_register_stellar_system, ice_start_battle};
 use intercosmic_empire::ffi_models::{BattleStateViewModel, FFILog, FFIOutcome, FFIResult, StellarSystemViewModel};
-use intercosmic_empire::game::battle::components::stellar::warp_gate::WarpGate;
 use intercosmic_empire::game::game_context::GameContext;
 use intercosmic_empire::game::battle::models::battle_parameters::BattleParameters;
+use intercosmic_empire::game::battle::models::warp_gate::WarpGate;
 use intercosmic_empire::game::core::models::faction::Faction;
 use intercosmic_empire::game::core::models::stellar_system::{Orbit, Planet, PlanetId, PlanetInfo, PlanetSize, Production, StellarSystemId, StellarSystemParameters, Sun};
+use intercosmic_empire::game::core::models::stellar_system::spaceport::Spaceport;
 
 #[test]
-fn battle_planets_production() {
+fn battle_planet_production() {
+    do_battle_planets_production(Faction::Green, 2.0, 3.0);
+}
+
+#[test]
+fn battle_abandoned_planet_no_production() {
+    do_battle_planets_production(Faction::Grey, 0.0, 0.0);
+}
+
+fn do_battle_planets_production(faction: Faction, product1: f32, product2: f32) {
     // arrange
     let mut game_context_ptr: *mut GameContext = ptr::null_mut();
     ice_init_game(&mut game_context_ptr).assert(FFIOutcome::Ok);
@@ -24,13 +34,15 @@ fn battle_planets_production() {
 
     ice_register_planet(game_context, stellar_system_id, Planet {
         position: Default::default(),
-        faction: Faction::Green,
+        faction,
         current_product: 0.0,
+        under_siege: false,
         info: PlanetInfo {
             id: PlanetId(1),
             orbit: Orbit { radius: 0.0, alpha_rotation: 0.0, beta_rotation: 0.0, start_day: 0 },
             size: PlanetSize::Mercury,
             production: Production { amount_per_second: 2.0, max_product: 10.0 },
+            spaceport: Spaceport { surface_radius: 0.0, arrival_radius: 0.0 },
         },
     }).assert(FFIOutcome::Ok);
 
@@ -46,7 +58,7 @@ fn battle_planets_production() {
     {
         let view_model = ice_get_battle_stellar_system_view_model(game_context);
         let planet = get_single_planet(&view_model);
-        assert_eq!(2.0, planet.current_product);
+        assert_eq!(product1, planet.current_product);
     }
 
     ice_battle_update(game_context, 0.5, FFILog::default()).assert(FFIOutcome::Ok);
@@ -54,7 +66,7 @@ fn battle_planets_production() {
     {
         let view_model = ice_get_battle_stellar_system_view_model(game_context);
         let planet = get_single_planet(&view_model);
-        assert_eq!(3.0, planet.current_product);
+        assert_eq!(product2, planet.current_product);
     }
 }
 
@@ -82,6 +94,7 @@ fn battle_warpgates_production() {
         faction: Faction::Green,
         current_product: 0.0,
         production: Production { amount_per_second: 2.0, max_product: 10.0 },
+        spaceport: Spaceport { surface_radius: 0.0, arrival_radius: 0.0 },
     }).assert(FFIOutcome::Ok);
 
     // assert

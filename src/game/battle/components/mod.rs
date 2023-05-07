@@ -1,2 +1,2 @@
 pub mod translation;
-pub mod stellar;
+pub mod spaceship;

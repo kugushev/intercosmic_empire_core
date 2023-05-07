@@ -2,9 +2,9 @@ use std::mem::MaybeUninit;
 use interoptopus::{callback, ffi_type};
 use interoptopus::patterns::slice::FFISlice;
 use interoptopus::patterns::string::AsciiPointer;
-use crate::game::battle::components::stellar::warp_gate::WarpGate;
 use crate::game::core::models::stellar_system::{Planet, StellarSystemId, StellarSystemParameters, Sun};
 use crate::game::battle::models::battle_state::BattleState;
+use crate::game::battle::models::warp_gate::WarpGate;
 
 callback!(FFILog(log: AsciiPointer) -> u8);
 
@@ -66,4 +66,13 @@ impl FFIOutcome {
     pub fn assert(&self, expected: FFIOutcome){
         assert_eq!(*self, expected)
     }
+}
+
+#[ffi_type]
+#[repr(C)]
+#[derive(Eq, PartialEq, Hash)]
+pub enum RouteBuildersSource{
+    LeftHand,
+    RightHand,
+    Ai
 }

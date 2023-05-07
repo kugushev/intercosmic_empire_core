@@ -1,7 +1,10 @@
 use crate::ffi_ext::*;
-use crate::ffi_models::{BattleStateViewModel, FFILog, FFIOutcome, FFIResult, StellarSystemViewModel};
-use crate::game::battle::components::stellar::warp_gate::WarpGate;
+use crate::ffi_models::{
+    BattleStateViewModel, FFILog, FFIOutcome, FFIResult, RouteBuildersSource,
+    StellarSystemViewModel,
+};
 use crate::game::battle::models::battle_parameters::BattleParameters;
+use crate::game::battle::models::warp_gate::WarpGate;
 use crate::game::core::models::stellar_system::{
     Planet, StellarSystemId, StellarSystemParameters, Sun,
 };
@@ -11,6 +14,7 @@ use glam::Vec3;
 use interoptopus::patterns::slice::FFISlice;
 use interoptopus::patterns::string::AsciiPointer;
 use interoptopus::{ffi_function, ffi_surrogates};
+use std::collections::hash_map::Entry;
 use std::ptr::null_mut;
 
 #[ffi_function]
@@ -21,10 +25,10 @@ pub extern "C" fn ice_hello_from_rust(a: i32) -> i32 {
 
 #[ffi_function]
 #[ffi_surrogates(
-position = "vec3_read_ptr",
-target = "vec3_read_ptr",
-current_velocity = "vec3_read_ptr",
-output = "vec3_read_write_ptr"
+    position = "vec3_read_ptr",
+    target = "vec3_read_ptr",
+    current_velocity = "vec3_read_ptr",
+    output = "vec3_read_write_ptr"
 )]
 #[no_mangle]
 pub extern "C" fn ice_steering_seek(
@@ -177,7 +181,6 @@ pub extern "C" fn ice_get_battle_view_model(
     }
 }
 
-
 #[ffi_function]
 #[no_mangle]
 pub extern "C" fn ice_get_battle_stellar_system_view_model(
@@ -196,4 +199,19 @@ pub extern "C" fn ice_get_battle_stellar_system_view_model(
         }
         None => FFIResult::unable(),
     }
+}
+
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_build_route_new(
+    context: &mut GameContext,
+    builder_source: RouteBuildersSource,
+) -> FFIOutcome {
+    context.guard(|ctx| {
+        let builder = ctx.route_builders.entry(builder_source).or_insert(None);
+        if builder.is_some() {
+            // todo: 
+        }
+        Ok(())
+    })
 }

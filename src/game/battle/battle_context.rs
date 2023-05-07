@@ -2,7 +2,7 @@ use crate::game::battle::ecs_context::EcsContext;
 use crate::game::battle::models::battle_parameters::BattleParameters;
 use crate::game::battle::models::battle_state::BattleState;
 use interoptopus::ffi_type;
-use crate::game::battle::components::stellar::warp_gate::WarpGate;
+use crate::game::battle::models::warp_gate::WarpGate;
 use crate::game::core::models::stellar_system::{StellarSystem};
 
 #[ffi_type(opaque)]

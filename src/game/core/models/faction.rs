@@ -2,7 +2,7 @@ use interoptopus::ffi_type;
 
 #[ffi_type]
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Faction{
     White, // Freeman (or without a dedicated belonging)
     Red,

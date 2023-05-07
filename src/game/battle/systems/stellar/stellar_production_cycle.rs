@@ -3,6 +3,7 @@ use bevy_ecs::system::ResMut;
 use crate::game::battle::models::battle_state::BattleState;
 use crate::game::battle::utils::game_time::GameTime;
 use crate::game::battle::utils::interop_logger::InteropLogger;
+use crate::game::core::models::faction::Faction;
 use crate::game::core::models::stellar_system::{Production, StellarSystem};
 
 pub(crate) fn stellar_production_cycle(mut stellar_system: ResMut<StellarSystem>,
@@ -16,6 +17,10 @@ pub(crate) fn stellar_production_cycle(mut stellar_system: ResMut<StellarSystem>
     }
 
     for planet in stellar_system.planets.iter_mut() {
+        if planet.faction == Faction::Grey || planet.under_siege {
+            continue
+        }
+
         increment_production(&mut planet.current_product, &planet.info.production, &delta_time);
 
         if logger.trace_enabled {
