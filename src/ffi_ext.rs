@@ -15,3 +15,11 @@ pub fn vec3() -> CType {
                                                  Documentation::new()));
     CType::Composite(composite)
 }
+
+pub fn quat() -> CType {
+    let composite = CompositeType::with_meta("Quaternion".to_string(), vec![],
+                                             Meta::with_namespace_documentation(
+                                                 "UnityEngine".to_string(),
+                                                 Documentation::new()));
+    CType::Composite(composite)
+}

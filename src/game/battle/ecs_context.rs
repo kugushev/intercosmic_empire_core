@@ -1,6 +1,8 @@
 use bevy_ecs::prelude::*;
 use crate::ffi_models::FFILog;
+use crate::game::battle::systems::spaceships::spaceship_movement::spaceship_move;
 use crate::game::battle::systems::stellar::stellar_production_cycle::stellar_production_cycle;
+use crate::game::battle::systems::views::spaceship_view_sync::spaceship_view_sync;
 use crate::game::battle::utils::game_time::GameTime;
 use crate::game::battle::utils::interop_logger::InteropLogger;
 
@@ -30,7 +32,9 @@ impl EcsContext {
 
         #[derive(StageLabel)]
         pub struct ViewSyncLabel;
-        let view_sync_stage = SystemStage::single_threaded();
+        let view_sync_stage = SystemStage::single_threaded()
+            .with_system(spaceship_view_sync)
+            .with_system(spaceship_move);
         schedule.add_stage_after(MainLabel, ViewSyncLabel, view_sync_stage);
 
         EcsContext {

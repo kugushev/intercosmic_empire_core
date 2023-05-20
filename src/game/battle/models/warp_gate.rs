@@ -1,5 +1,4 @@
 use interoptopus::{ffi_surrogates, ffi_type};
-use bevy_ecs::prelude::Component;
 use glam::Vec3;
 use crate::ffi_ext::vec3;
 use crate::game::core::models::faction::Faction;
@@ -11,7 +10,6 @@ use crate::game::core::models::stellar_system::spaceport::Spaceport;
 #[ffi_surrogates(position = "vec3")]
 #[repr(C)]
 #[derive(Clone)]
-#[derive(Component)]
 pub struct WarpGate {
     pub position: Vec3,
     pub faction: Faction,

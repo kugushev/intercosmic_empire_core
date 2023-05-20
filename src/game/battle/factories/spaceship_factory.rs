@@ -1,22 +1,30 @@
-use crate::game::battle::battle_context::BattleContext;
-use crate::game::battle::components::spaceship::{Spaceship, SpaceshipBundle};
+use bevy_ecs::prelude::World;
+use glam::{Quat, Vec3};
+use crate::game::battle::components::spaceship::{Spaceship, SpaceshipBundle, Steering};
 use crate::game::battle::components::translation::Translation;
 use crate::game::battle::models::route::Route;
 use crate::game::core::models::faction::Faction;
-use crate::game::core::models::spaceships::spaceship_model::SpaceshipModel;
+use crate::game::core::models::spaceships::spaceship_mark::SpaceshipMark;
 
 pub fn create_spaceship(
-    ctx: &mut BattleContext,
+    ecs_world: &mut World,
     route: Route,
     faction: Faction,
-    model: SpaceshipModel,
+    model: SpaceshipMark,
 ) {
-    ctx.ecs.world.spawn(SpaceshipBundle {
+    let translation = Translation {
+        position: route.waypoints[0],
+        rotation: Quat::default(),
+        scale: 0.0,
+    };
+    ecs_world.spawn(SpaceshipBundle {
         spaceship: Spaceship {
             route,
             faction,
-            model,
+            mark: model,
+            target_waypoint: 0
         },
-        translation: Translation::default(),
+        translation,
+        steering: Steering { velocity: Vec3::new(0.0, 0.0, 0.0) },
     });
 }

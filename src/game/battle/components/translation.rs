@@ -1,7 +1,9 @@
 use bevy_ecs::prelude::Component;
-use glam::Vec3;
+use glam::{Quat, Vec3};
 
-#[derive(Default, Component)]
-pub(crate) struct Translation {
-    pub(crate) position: Vec3
+#[derive(Component)]
+pub struct Translation {
+    pub position: Vec3,
+    pub rotation: Quat,
+    pub scale: f32,
 }

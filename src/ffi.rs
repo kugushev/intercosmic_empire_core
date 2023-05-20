@@ -14,8 +14,11 @@ use glam::Vec3;
 use interoptopus::patterns::slice::FFISlice;
 use interoptopus::patterns::string::AsciiPointer;
 use interoptopus::{ffi_function, ffi_surrogates};
-use std::collections::hash_map::Entry;
 use std::ptr::null_mut;
+use crate::game::battle::models::route::RouteBuilder;
+use crate::game::core::models::faction::Faction;
+use crate::game::core::models::spaceships::spaceship_mark::SpaceshipMark;
+use crate::game::core::models::stellar_system::spaceport::Spaceport;
 
 #[ffi_function]
 #[no_mangle]
@@ -25,10 +28,10 @@ pub extern "C" fn ice_hello_from_rust(a: i32) -> i32 {
 
 #[ffi_function]
 #[ffi_surrogates(
-    position = "vec3_read_ptr",
-    target = "vec3_read_ptr",
-    current_velocity = "vec3_read_ptr",
-    output = "vec3_read_write_ptr"
+position = "vec3_read_ptr",
+target = "vec3_read_ptr",
+current_velocity = "vec3_read_ptr",
+output = "vec3_read_write_ptr"
 )]
 #[no_mangle]
 pub extern "C" fn ice_steering_seek(
@@ -126,13 +129,14 @@ pub extern "C" fn ice_start_battle(
 pub extern "C" fn ice_battle_open_warp_gate(
     context: &mut GameContext,
     warp_gate: WarpGate,
+    warp_gate_id: &mut i32,
 ) -> FFIOutcome {
     if context.battle_context.is_none() {
         return FFIOutcome::Unable;
     }
 
     context.guard(|ctx| {
-        ctx.battle_context
+        *warp_gate_id = ctx.battle_context
             .as_mut()
             .unwrap()
             .open_warp_gate(warp_gate);
@@ -174,8 +178,9 @@ pub extern "C" fn ice_get_battle_view_model(
 ) -> FFIResult<BattleStateViewModel> {
     match context.battle_context.as_ref() {
         Some(battle_ctx) => {
-            let view_model = battle_ctx.get_view_model();
-            FFIResult::ok(BattleStateViewModel::from(view_model))
+            let battle_state = battle_ctx.get_battle_state();
+            let battle_view_state = battle_ctx.get_battle_view_state();
+            FFIResult::ok(BattleStateViewModel::from(battle_state, battle_view_state))
         }
         None => FFIResult::unable(),
     }
@@ -202,16 +207,79 @@ pub extern "C" fn ice_get_battle_stellar_system_view_model(
 }
 
 #[ffi_function]
+#[ffi_surrogates(start_position = "vec3_read_ptr")]
 #[no_mangle]
 pub extern "C" fn ice_build_route_new(
     context: &mut GameContext,
     builder_source: RouteBuildersSource,
+    start_position: &Vec3,
+    start_spaceport: Spaceport,
+    builder_id: &mut i32,
 ) -> FFIOutcome {
     context.guard(|ctx| {
-        let builder = ctx.route_builders.entry(builder_source).or_insert(None);
-        if builder.is_some() {
-            // todo: 
+        if ctx.route_builders.contains_key(&builder_source) {
+            return Err("Active builder is not deleted".to_string());
         }
+
+        ctx.route_builders_counter += 1;
+        *builder_id = ctx.route_builders_counter;
+
+        ctx.route_builders.insert(builder_source, RouteBuilder::new(
+            ctx.route_builders_counter, start_position.clone(), start_spaceport),
+        );
+
         Ok(())
+    })
+}
+
+#[ffi_function]
+#[ffi_surrogates(waypoint = "vec3_read_ptr")]
+#[no_mangle]
+pub extern "C" fn ice_build_route_add_waypoint(
+    context: &mut GameContext,
+    builder_source: RouteBuildersSource,
+    builder_id: i32,
+    waypoint: &Vec3,
+) -> FFIOutcome {
+    context.guard(|ctx| {
+        let current = ctx.route_builders.get_mut(&builder_source);
+        match current {
+            None => Err(format!("Builder {builder_id} for {builder_source:?} not found").to_string()),
+            Some(builder) => {
+                builder.add_waypoint(waypoint.clone(), builder_id);
+                Ok(())
+            }
+        }
+    })
+}
+
+#[ffi_function]
+#[ffi_surrogates(finish_position = "vec3_read_ptr")]
+#[no_mangle]
+pub extern "C" fn ice_spawn_spaceship(
+    context: &mut GameContext,
+    route_builder_source: RouteBuildersSource,
+    route_builder_id: i32,
+    finish_position: &Vec3,
+    finish_spaceport: &Spaceport,
+    owner: &Faction,
+    spawner_id: i32,
+) -> FFIOutcome {
+    context.guard(|ctx| {
+        let current = ctx.route_builders.remove(&route_builder_source);
+        match current {
+            None => Err(format!("Builder {route_builder_id} for {route_builder_source:?} not found").to_string()),
+            Some(builder) => {
+                let result = builder.build(finish_position, finish_spaceport, route_builder_id);
+                match result {
+                    None => Err(format!("Unable to create route {route_builder_id} for {route_builder_source:?} is none").to_string()),
+                    Some(route) => {
+                        let battle_ctx = ctx.battle_context.as_mut().expect("No battle context 0_o");
+                        battle_ctx.spawn_spaceship(owner, spawner_id, route, SpaceshipMark::Viper); // todo: support different spaceships (specify on route start)
+                        Ok(())
+                    }
+                }
+            }
+        }
     })
 }

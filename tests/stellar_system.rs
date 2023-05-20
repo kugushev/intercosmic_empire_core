@@ -42,7 +42,7 @@ fn do_battle_planets_production(faction: Faction, product1: f32, product2: f32) 
             orbit: Orbit { radius: 0.0, alpha_rotation: 0.0, beta_rotation: 0.0, start_day: 0 },
             size: PlanetSize::Mercury,
             production: Production { amount_per_second: 2.0, max_product: 10.0 },
-            spaceport: Spaceport { surface_radius: 0.0, arrival_radius: 0.0 },
+            spaceport: Spaceport { surface_radius: 0.0, orbit_radius: 0.0 },
         },
     }).assert(FFIOutcome::Ok);
 
@@ -89,13 +89,14 @@ fn battle_warpgates_production() {
         stellar_system_id,
     }).assert(FFIOutcome::Ok);
 
+    let mut warp_gate_id = 0;
     ice_battle_open_warp_gate(game_context, WarpGate {
         position: Default::default(),
         faction: Faction::Green,
         current_product: 0.0,
         production: Production { amount_per_second: 2.0, max_product: 10.0 },
-        spaceport: Spaceport { surface_radius: 0.0, arrival_radius: 0.0 },
-    }).assert(FFIOutcome::Ok);
+        spaceport: Spaceport { surface_radius: 0.0, orbit_radius: 0.0 },
+    }, &mut warp_gate_id).assert(FFIOutcome::Ok);
 
     // assert
     ice_battle_update(game_context, 1.0, FFILog::default()).assert(FFIOutcome::Ok);

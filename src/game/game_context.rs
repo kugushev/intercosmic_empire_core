@@ -16,7 +16,8 @@ pub struct GameContext {
     pub(crate) last_error_msg: CString,
     pub(crate) last_log_msg: CString,
     pub log_signal_delegate: Option<FFILog>,
-    pub route_builders: HashMap<RouteBuildersSource, Option<RouteBuilder>>
+    pub route_builders: HashMap<RouteBuildersSource, RouteBuilder>,
+    pub route_builders_counter: i32,
 }
 
 impl GameContext {
@@ -27,7 +28,8 @@ impl GameContext {
             last_error_msg: CString::default(),
             last_log_msg: CString::default(),
             log_signal_delegate: None,
-            route_builders: HashMap::new()
+            route_builders: HashMap::new(),
+            route_builders_counter: 0,
         }
     }
 

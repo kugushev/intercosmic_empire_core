@@ -9,6 +9,10 @@ use crate::game::core::models::stellar_system::production::Productive;
 pub mod spaceport;
 pub mod production;
 
+pub trait Position {
+    fn get_position(&self) -> Vec3;
+}
+
 #[derive(Resource, Clone)]
 pub struct StellarSystem {
     pub id: StellarSystemId,
@@ -75,6 +79,10 @@ impl Productive for Planet {
     fn current_product(&mut self) -> &mut f32 {
         &mut self.current_product
     }
+}
+
+impl Position for Planet {
+    fn get_position(&self) -> Vec3 { self.position }
 }
 
 #[ffi_type]

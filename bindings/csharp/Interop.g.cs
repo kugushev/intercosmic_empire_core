@@ -51,7 +51,7 @@ namespace AK.Scripts.Core.Native
         public static extern FFIOutcome ice_start_battle(IntPtr context, BattleParameters parameters);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_open_warp_gate")]
-        public static extern FFIOutcome ice_battle_open_warp_gate(IntPtr context, WarpGate warp_gate);
+        public static extern FFIOutcome ice_battle_open_warp_gate(IntPtr context, WarpGate warp_gate, out int warp_gate_id);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_finish_battle")]
         public static extern void ice_finish_battle(IntPtr context);
@@ -106,6 +106,7 @@ namespace AK.Scripts.Core.Native
     public partial struct BattleStateViewModel
     {
         public SliceWarpGate warp_gates;
+        public SliceSpaceshipView spaceships;
     }
 
     [Serializable]
@@ -142,6 +143,7 @@ namespace AK.Scripts.Core.Native
         public Vector3 position;
         public Faction faction;
         public float current_product;
+        public bool under_siege;
     }
 
     [Serializable]
@@ -159,6 +161,7 @@ namespace AK.Scripts.Core.Native
         public Orbit orbit;
         public PlanetSize size;
         public Production production;
+        public Spaceport spaceport;
     }
 
     [Serializable]
@@ -167,6 +170,24 @@ namespace AK.Scripts.Core.Native
     {
         public float amount_per_second;
         public float max_product;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct Spaceport
+    {
+        public float orbit_radius;
+        public float surface_radius;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct SpaceshipView
+    {
+        public Vector3 position;
+        public Quaternion rotation;
+        public float scale;
+        public Faction faction;
     }
 
     [Serializable]
@@ -215,6 +236,7 @@ namespace AK.Scripts.Core.Native
         public Faction faction;
         public Production production;
         public float current_product;
+        public Spaceport spaceport;
     }
 
     ///A pointer to an array of data someone else owns which may not be modified.
@@ -263,6 +285,65 @@ namespace AK.Scripts.Core.Native
         }
         public int Count => (int) len;
         public IEnumerator<Planet> GetEnumerator()
+        {
+            for (var i = 0; i < (int)len; ++i)
+            {
+                yield return this[i];
+            }
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+    }
+
+
+    ///A pointer to an array of data someone else owns which may not be modified.
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct SliceSpaceshipView
+    {
+        ///Pointer to start of immutable data.
+        IntPtr data;
+        ///Number of elements.
+        ulong len;
+    }
+
+    public partial struct SliceSpaceshipView : IEnumerable<SpaceshipView>
+    {
+        public SliceSpaceshipView(GCHandle handle, ulong count)
+        {
+            this.data = handle.AddrOfPinnedObject();
+            this.len = count;
+        }
+        public SliceSpaceshipView(IntPtr handle, ulong count)
+        {
+            this.data = handle;
+            this.len = count;
+        }
+        public SpaceshipView this[int i]
+        {
+            get
+            {
+                if (i >= Count) throw new IndexOutOfRangeException();
+                var size = Marshal.SizeOf(typeof(SpaceshipView));
+                var ptr = new IntPtr(data.ToInt64() + i * size);
+                return Marshal.PtrToStructure<SpaceshipView>(ptr);
+            }
+        }
+        public SpaceshipView[] Copied
+        {
+            get
+            {
+                var rval = new SpaceshipView[len];
+                for (var i = 0; i < (int) len; i++) {
+                    rval[i] = this[i];
+                }
+                return rval;
+            }
+        }
+        public int Count => (int) len;
+        public IEnumerator<SpaceshipView> GetEnumerator()
         {
             for (var i = 0; i < (int)len; ++i)
             {
