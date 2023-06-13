@@ -1,8 +1,8 @@
 use std::ops::Index;
 use std::ptr;
 use glam::Vec3;
-use intercosmic_empire::ffi::{ice_battle_open_warp_gate, ice_battle_update, ice_get_battle_stellar_system_view_model, ice_get_battle_view_model, ice_init_game, ice_register_planet, ice_register_stellar_system, ice_start_battle};
-use intercosmic_empire::ffi_models::{BattleStateViewModel, FFILog, FFIOutcome, FFIResult, StellarSystemViewModel};
+use intercosmic_empire::ffi::{ice_battle_open_warp_gate, ice_battle_update, ice_get_battle_stellar_system_view_model, ice_get_battle_view_model, ice_init_game, ice_register_planet, ice_register_stellar_system, ice_start_battle, ice_subscribe_logs};
+use intercosmic_empire::ffi_models::{BattleStateViewModel, ffi_log_println, FFIOutcome, FFIResult, StellarSystemViewModel};
 use intercosmic_empire::game::game_context::GameContext;
 use intercosmic_empire::game::battle::models::battle_parameters::BattleParameters;
 use intercosmic_empire::game::battle::models::warp_gate::WarpGate;
@@ -24,8 +24,9 @@ fn do_battle_planets_production(faction: Faction, product1: f32, product2: f32) 
     // arrange
     let mut game_context_ptr: *mut GameContext = ptr::null_mut();
     ice_init_game(&mut game_context_ptr).assert(FFIOutcome::Ok);
-
     let game_context = unsafe { &mut (*game_context_ptr) };
+
+    ice_subscribe_logs(game_context, ffi_log_println());
 
     let stellar_system_id = StellarSystemId(42);
     ice_register_stellar_system(game_context, stellar_system_id,
@@ -53,7 +54,7 @@ fn do_battle_planets_production(faction: Faction, product1: f32, product2: f32) 
     }).assert(FFIOutcome::Ok);
 
     // assert
-    ice_battle_update(game_context, 1.0, FFILog::default()).assert(FFIOutcome::Ok);
+    ice_battle_update(game_context, 1.0).assert(FFIOutcome::Ok);
 
     {
         let view_model = ice_get_battle_stellar_system_view_model(game_context);
@@ -61,7 +62,7 @@ fn do_battle_planets_production(faction: Faction, product1: f32, product2: f32) 
         assert_eq!(product1, planet.current_product);
     }
 
-    ice_battle_update(game_context, 0.5, FFILog::default()).assert(FFIOutcome::Ok);
+    ice_battle_update(game_context, 0.5).assert(FFIOutcome::Ok);
 
     {
         let view_model = ice_get_battle_stellar_system_view_model(game_context);
@@ -77,6 +78,8 @@ fn battle_warpgates_production() {
     ice_init_game(&mut game_context_ptr).assert(FFIOutcome::Ok);
 
     let game_context = unsafe { &mut (*game_context_ptr) };
+
+    ice_subscribe_logs(game_context, ffi_log_println());
 
     let stellar_system_id = StellarSystemId(42);
     ice_register_stellar_system(game_context, stellar_system_id,
@@ -99,7 +102,7 @@ fn battle_warpgates_production() {
     }, &mut warp_gate_id).assert(FFIOutcome::Ok);
 
     // assert
-    ice_battle_update(game_context, 1.0, FFILog::default()).assert(FFIOutcome::Ok);
+    ice_battle_update(game_context, 1.0).assert(FFIOutcome::Ok);
 
     {
         let view_model = ice_get_battle_view_model(game_context);
@@ -107,7 +110,7 @@ fn battle_warpgates_production() {
         assert_eq!(2.0, warp_gate.current_product);
     }
 
-    ice_battle_update(game_context, 0.5, FFILog::default()).assert(FFIOutcome::Ok);
+    ice_battle_update(game_context, 0.5).assert(FFIOutcome::Ok);
 
     {
         let view_model = ice_get_battle_view_model(game_context);

@@ -9,7 +9,7 @@ use crate::game::core::models::stellar_system::{
     Planet, StellarSystemId, StellarSystemParameters, Sun,
 };
 use crate::game::game_context::GameContext;
-use crate::steering;
+use crate::{steering};
 use glam::Vec3;
 use interoptopus::patterns::slice::FFISlice;
 use interoptopus::patterns::string::AsciiPointer;
@@ -84,14 +84,10 @@ pub extern "C" fn ice_get_last_error(context: &GameContext) -> AsciiPointer {
 
 #[ffi_function]
 #[no_mangle]
-pub extern "C" fn ice_get_last_log(context: &GameContext) -> AsciiPointer {
-    AsciiPointer::from_cstr(&context.last_log_msg)
-}
-
-#[ffi_function]
-#[no_mangle]
-pub extern "C" fn ice_subscribe_log_signal(context: &mut GameContext, log_delegate: FFILog) {
-    context.log_signal_delegate = Some(log_delegate);
+pub extern "C" fn ice_subscribe_logs(context: &mut GameContext, log_delegate: FFILog) -> FFIOutcome {
+    let ffi_log = &mut context.logger.borrow_mut().ffi_log;
+    *ffi_log = log_delegate;
+    FFIOutcome::Ok
 }
 
 #[ffi_function]
@@ -155,7 +151,6 @@ pub extern "C" fn ice_finish_battle(context: &mut GameContext) {
 pub extern "C" fn ice_battle_update(
     context: &mut GameContext,
     delta_time: f32,
-    log: FFILog,
 ) -> FFIOutcome {
     if context.battle_context.is_none() {
         return FFIOutcome::Unable;
@@ -166,7 +161,7 @@ pub extern "C" fn ice_battle_update(
             .as_mut()
             .unwrap()
             .ecs
-            .update(delta_time, log);
+            .update(delta_time);
         Ok(())
     })
 }
@@ -180,7 +175,8 @@ pub extern "C" fn ice_get_battle_view_model(
         Some(battle_ctx) => {
             let battle_state = battle_ctx.get_battle_state();
             let battle_view_state = battle_ctx.get_battle_view_state();
-            FFIResult::ok(BattleStateViewModel::from(battle_state, battle_view_state))
+            let view_model = BattleStateViewModel::from(battle_state, battle_view_state);
+            FFIResult::ok(view_model)
         }
         None => FFIResult::unable(),
     }

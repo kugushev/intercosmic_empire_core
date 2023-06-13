@@ -10,18 +10,18 @@ pub fn create_spaceship(
     ecs_world: &mut World,
     route: Route,
     faction: Faction,
-    model: SpaceshipMark,
+    mark: SpaceshipMark,
 ) {
     let translation = Translation {
         position: route.waypoints[0],
         rotation: Quat::default(),
-        scale: 0.0,
+        scale: 1.0,
     };
     ecs_world.spawn(SpaceshipBundle {
         spaceship: Spaceship {
             route,
             faction,
-            mark: model,
+            mark,
             target_waypoint: 0
         },
         translation,

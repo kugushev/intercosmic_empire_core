@@ -13,8 +13,7 @@ pub fn my_inventory() -> Inventory {
         .register(function!(ffi::ice_init_game))
         .register(function!(ffi::ice_close_game))
         .register(function!(ffi::ice_get_last_error))
-        .register(function!(ffi::ice_get_last_log))
-        .register(function!(ffi::ice_subscribe_log_signal))
+        .register(function!(ffi::ice_subscribe_logs))
         .register(function!(ffi::ice_register_stellar_system))
         .register(function!(ffi::ice_register_planet))
         .register(function!(ffi::ice_start_battle))
@@ -23,5 +22,8 @@ pub fn my_inventory() -> Inventory {
         .register(function!(ffi::ice_battle_update))
         .register(function!(ffi::ice_get_battle_view_model))
         .register(function!(ffi::ice_get_battle_stellar_system_view_model))
+        .register(function!(ffi::ice_build_route_new))
+        .register(function!(ffi::ice_build_route_add_waypoint))
+        .register(function!(ffi::ice_spawn_spaceship))
         .inventory()
 }

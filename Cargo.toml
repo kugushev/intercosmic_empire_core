@@ -11,9 +11,10 @@ name = "intercosmic_empire"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-glam = "0.22.0"
+glam = "0.24.0"
 interoptopus = "0.14.15"
-bevy_ecs = "0.9.1"
+bevy_ecs = "0.10.1"
+base64 = "0.21.2"
 
 [dev-dependencies]
 interoptopus_backend_csharp = "0.14.15"

@@ -35,11 +35,8 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_last_error")]
         public static extern IntPtr ice_get_last_error(IntPtr context);
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_last_log")]
-        public static extern IntPtr ice_get_last_log(IntPtr context);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_subscribe_log_signal")]
-        public static extern void ice_subscribe_log_signal(IntPtr context, FFILog log_delegate);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_subscribe_logs")]
+        public static extern FFIOutcome ice_subscribe_logs(IntPtr context, FFILog log_delegate);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_register_stellar_system")]
         public static extern FFIOutcome ice_register_stellar_system(IntPtr context, StellarSystemId id, Sun sun, StellarSystemParameters parameters);
@@ -57,13 +54,22 @@ namespace AK.Scripts.Core.Native
         public static extern void ice_finish_battle(IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_update")]
-        public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time, FFILog log);
+        public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_battle_view_model")]
         public static extern FFIResultBattleStateViewModel ice_get_battle_view_model(IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_battle_stellar_system_view_model")]
         public static extern FFIResultStellarSystemViewModel ice_get_battle_stellar_system_view_model(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_build_route_new")]
+        public static extern FFIOutcome ice_build_route_new(IntPtr context, RouteBuildersSource builder_source, ref Vector3 start_position, Spaceport start_spaceport, out int builder_id);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_build_route_add_waypoint")]
+        public static extern FFIOutcome ice_build_route_add_waypoint(IntPtr context, RouteBuildersSource builder_source, int builder_id, ref Vector3 waypoint);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_spawn_spaceship")]
+        public static extern FFIOutcome ice_spawn_spaceship(IntPtr context, RouteBuildersSource route_builder_source, int route_builder_id, ref Vector3 finish_position, ref Spaceport finish_spaceport, ref Faction owner, int spawner_id);
 
     }
 
@@ -93,6 +99,18 @@ namespace AK.Scripts.Core.Native
         Jupiter = 5,
     }
 
+    public enum RouteBuildersSource
+    {
+        LeftHand = 0,
+        RightHand = 1,
+        Ai = 2,
+    }
+
+    public enum SpaceshipMark
+    {
+        Viper = 0,
+    }
+
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public partial struct BattleParameters
@@ -106,7 +124,7 @@ namespace AK.Scripts.Core.Native
     public partial struct BattleStateViewModel
     {
         public SliceWarpGate warp_gates;
-        public SliceSpaceshipView spaceships;
+        public SliceSpaceshipViewModel spaceships;
     }
 
     [Serializable]
@@ -182,12 +200,13 @@ namespace AK.Scripts.Core.Native
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct SpaceshipView
+    public partial struct SpaceshipViewModel
     {
         public Vector3 position;
         public Quaternion rotation;
         public float scale;
         public Faction faction;
+        public SpaceshipMark mark;
     }
 
     [Serializable]
@@ -301,7 +320,7 @@ namespace AK.Scripts.Core.Native
     ///A pointer to an array of data someone else owns which may not be modified.
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct SliceSpaceshipView
+    public partial struct SliceSpaceshipViewModel
     {
         ///Pointer to start of immutable data.
         IntPtr data;
@@ -309,33 +328,33 @@ namespace AK.Scripts.Core.Native
         ulong len;
     }
 
-    public partial struct SliceSpaceshipView : IEnumerable<SpaceshipView>
+    public partial struct SliceSpaceshipViewModel : IEnumerable<SpaceshipViewModel>
     {
-        public SliceSpaceshipView(GCHandle handle, ulong count)
+        public SliceSpaceshipViewModel(GCHandle handle, ulong count)
         {
             this.data = handle.AddrOfPinnedObject();
             this.len = count;
         }
-        public SliceSpaceshipView(IntPtr handle, ulong count)
+        public SliceSpaceshipViewModel(IntPtr handle, ulong count)
         {
             this.data = handle;
             this.len = count;
         }
-        public SpaceshipView this[int i]
+        public SpaceshipViewModel this[int i]
         {
             get
             {
                 if (i >= Count) throw new IndexOutOfRangeException();
-                var size = Marshal.SizeOf(typeof(SpaceshipView));
+                var size = Marshal.SizeOf(typeof(SpaceshipViewModel));
                 var ptr = new IntPtr(data.ToInt64() + i * size);
-                return Marshal.PtrToStructure<SpaceshipView>(ptr);
+                return Marshal.PtrToStructure<SpaceshipViewModel>(ptr);
             }
         }
-        public SpaceshipView[] Copied
+        public SpaceshipViewModel[] Copied
         {
             get
             {
-                var rval = new SpaceshipView[len];
+                var rval = new SpaceshipViewModel[len];
                 for (var i = 0; i < (int) len; i++) {
                     rval[i] = this[i];
                 }
@@ -343,7 +362,7 @@ namespace AK.Scripts.Core.Native
             }
         }
         public int Count => (int) len;
-        public IEnumerator<SpaceshipView> GetEnumerator()
+        public IEnumerator<SpaceshipViewModel> GetEnumerator()
         {
             for (var i = 0; i < (int)len; ++i)
             {

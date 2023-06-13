@@ -5,12 +5,15 @@ use interoptopus::ffi_type;
 use crate::game::battle::factories::spaceship_factory::create_spaceship;
 use crate::game::battle::models::route::Route;
 use crate::game::battle::models::warp_gate::WarpGate;
+use crate::game::battle::utils::ecs_ext::resources_and_non_send_mut;
 use crate::game::battle::views::BattleViewsState;
 use crate::game::core::models::faction::Faction;
 use crate::game::core::models::spaceships::spaceship_mark::SpaceshipMark;
 use crate::game::core::models::spaceships::spaceship_parameters::SpaceshipParameters;
 use crate::game::core::models::stellar_system::StellarSystem;
 use crate::game::core::models::stellar_system::production::Productive;
+use crate::game::utils::interop_logger::LoggerRef;
+use crate::log;
 
 #[ffi_type(opaque)]
 pub struct BattleContext {
@@ -20,8 +23,9 @@ pub struct BattleContext {
 pub const WARP_GATE_ID_SHIFT: i32 = 1000;
 
 impl BattleContext {
-    pub(crate) fn new(battle_parameters: BattleParameters, stellar_system: StellarSystem) -> BattleContext {
-        let mut ecs = EcsContext::new();
+    pub(crate) fn new(battle_parameters: BattleParameters, stellar_system: StellarSystem,
+                      logger: LoggerRef) -> BattleContext {
+        let mut ecs = EcsContext::new(logger);
 
         ecs.world.insert_resource(battle_parameters);
         ecs.world.insert_resource(stellar_system);
@@ -50,30 +54,33 @@ impl BattleContext {
     }
 
     pub fn spawn_spaceship(&mut self, faction: &Faction, spawner_id: i32, route: Route,
-                           model: SpaceshipMark) {
-        let parameters = SpaceshipParameters::get_parameters(&model);
+                           mark: SpaceshipMark) {
+        let parameters = SpaceshipParameters::get_parameters(&mark);
 
         let ecs_world = &mut self.ecs.world;
-        let mut stellar_system = ecs_world.resource_mut::<StellarSystem>();
-
-
+        let (mut stellar_system, mut battle_state, logger) =
+            resources_and_non_send_mut::<StellarSystem, BattleState, LoggerRef>(ecs_world);
         let found = stellar_system.planets.iter_mut().find(|p| { p.info.id.0 == spawner_id }); // todo: refactor spawner search, cause  0(n) is 'fine', but not good
         let success = match found {
             Some(p) => {
-                p.try_produce(parameters.cost)
+                let produced = p.try_produce(parameters.cost);
+                log!(logger, format!("Produced={produced} from planet {} {}/{}", p.info.id.0, p.current_product, parameters.cost));
+                produced
             }
             None => {
-                let mut battle_state = ecs_world.resource_mut::<BattleState>();
                 let warp_gates = &mut battle_state.warp_gates;
                 let id = usize::try_from(spawner_id - WARP_GATE_ID_SHIFT).expect("Unconvertable spawner_id to usize");
                 assert!(id < warp_gates.len());
                 let warp_gate = &mut warp_gates[id];
-                warp_gate.try_produce(parameters.cost)
+                let produced = warp_gate.try_produce(parameters.cost);
+                log!(logger, format!("Produced={produced} from warp gate {id} {}/{}", warp_gate.current_product, parameters.cost));
+                produced
             }
         };
 
         if success {
-            create_spaceship(ecs_world, route, faction.clone(), model);
+            log!(logger, format!("Create spaceship mark {} {}", mark.clone() as i32, faction.clone() as i32));
+            create_spaceship(ecs_world, route, faction.clone(), mark);
         }
     }
 }

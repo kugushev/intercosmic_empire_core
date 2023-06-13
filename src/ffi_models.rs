@@ -1,13 +1,23 @@
 use std::mem::MaybeUninit;
+use glam::Quat;
 use interoptopus::{callback, ffi_type};
 use interoptopus::patterns::slice::FFISlice;
 use interoptopus::patterns::string::AsciiPointer;
 use crate::game::core::models::stellar_system::{Planet, StellarSystemId, StellarSystemParameters, Sun};
 use crate::game::battle::models::battle_state::BattleState;
 use crate::game::battle::models::warp_gate::WarpGate;
-use crate::game::battle::views::{BattleViewsState, SpaceshipView};
+use crate::game::battle::views::{BattleViewsState, SpaceshipViewModel};
 
 callback!(FFILog(log: AsciiPointer) -> u8);
+
+pub fn ffi_log_println() -> FFILog{
+    FFILog(Some(log))
+}
+
+extern "C" fn log(log: AsciiPointer) -> u8 {
+    println!("{}", log.as_str().unwrap());
+    0
+}
 
 #[ffi_type]
 #[repr(C)]
@@ -55,7 +65,7 @@ pub struct StellarSystemViewModel<'a> {
 #[repr(C)]
 pub struct BattleStateViewModel<'a> {
     pub warp_gates: FFISlice<'a, WarpGate>,
-    pub spaceships: FFISlice<'a, SpaceshipView>,
+    pub spaceships: FFISlice<'a, SpaceshipViewModel>
 }
 
 impl<'a> BattleStateViewModel<'a> {
@@ -81,4 +91,26 @@ pub enum RouteBuildersSource {
     LeftHand,
     RightHand,
     Ai,
+}
+
+#[ffi_type(name = "Quaternion", namespace = "UnityEngine")]
+#[repr(C)]
+#[derive(Clone)]
+pub struct FFIQuat{
+    x: f32,
+    y: f32,
+    z: f32,
+    w: f32
+}
+
+impl From<Quat> for FFIQuat {
+    fn from(value: Quat) -> Self {
+        // glam::Quat is not repr(C) so we can't use bytes as is
+        Self {
+            x: value.x,
+            y: value.y,
+            z: value.z,
+            w: value.w
+        }
+    }
 }

@@ -2,8 +2,8 @@ use interoptopus::ffi_type;
 
 #[ffi_type]
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub enum SpaceshipMark {
-    Viper
+    Viper = 0
 }
 

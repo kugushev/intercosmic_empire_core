@@ -1,14 +1,16 @@
-use bevy_ecs::prelude::{Mut, Query, Res};
+use bevy_ecs::prelude::{Mut, NonSend, Query, Res};
 use glam::{Quat, Vec3};
 use crate::game::battle::components::spaceship::{Spaceship, Steering};
 use crate::game::battle::components::translation::Translation;
 use crate::game::battle::utils::game_time::GameTime;
 use crate::game::core::models::spaceships::spaceship_parameters::SpaceshipParameters;
+use crate::game::utils::interop_logger::LoggerRef;
+use crate::log;
 
 pub const SUFFICIENT_DISTANCE_TO_TARGET: f32 = 0.025;
 
 pub(crate) fn spaceship_move(mut query: Query<(&mut Spaceship, &mut Translation, &mut Steering)>,
-                             time: Res<GameTime>) {
+                             time: Res<GameTime>, logger: NonSend<LoggerRef>) {
     for (mut spaceship, mut translation, mut steering) in &mut query {
 
         // todo: spaceshipViewRef.View.Weapon.Extinguish();
@@ -19,9 +21,13 @@ pub(crate) fn spaceship_move(mut query: Query<(&mut Spaceship, &mut Translation,
             let parameters = SpaceshipParameters::get_parameters(&spaceship.mark);
             seek_to_waypoint(&mut translation, *target, parameters, &mut steering, time.delta_time);
 
+            log!(logger, format!("Move to {target} p:{} r:{}", translation.position, translation.rotation));
+
             if translation.position.distance(*target) <= SUFFICIENT_DISTANCE_TO_TARGET {
                 spaceship.target_waypoint += 1;
             }
+        } else {
+            log!(logger, format!("All waypoints are visited"));
         }
     }
 }
@@ -43,8 +49,8 @@ fn seek(position: &Vec3, target: &Vec3, mass: f32, max_speed: f32,
         current_velocity: &Vec3) -> Vec3 {
     let desired_velocity = (*target - *position).normalize() * max_speed;
     if desired_velocity.is_nan() {
-        return current_velocity.clone();
+        return *current_velocity;
     }
     let steering = Vec3::clamp_length_max(desired_velocity - *current_velocity, max_speed) / mass;
-    return Vec3::clamp_length_max(*current_velocity + steering, max_speed);
+    Vec3::clamp_length_max(*current_velocity + steering, max_speed)
 }
