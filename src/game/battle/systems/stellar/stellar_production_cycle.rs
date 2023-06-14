@@ -5,7 +5,7 @@ use crate::game::battle::utils::game_time::GameTime;
 use crate::game::core::models::faction::Faction;
 use crate::game::core::models::stellar_system::{Production, StellarSystem};
 use crate::game::utils::interop_logger::LoggerRef;
-use crate::log;
+use crate::trace;
 
 pub(crate) fn stellar_production_cycle(mut stellar_system: ResMut<StellarSystem>,
                                        mut battle_state: ResMut<BattleState>,
@@ -13,7 +13,7 @@ pub(crate) fn stellar_production_cycle(mut stellar_system: ResMut<StellarSystem>
                                        logger: NonSend<LoggerRef>) {
     let delta_time = time.delta_time;
 
-   log!(logger, format!("Start Production Cycle, deltaTime={delta_time}."));
+   trace!(logger, format!("Start Production Cycle, deltaTime={delta_time}."));
 
     for planet in stellar_system.planets.iter_mut() {
         if planet.faction == Faction::Grey || planet.under_siege {
@@ -22,7 +22,7 @@ pub(crate) fn stellar_production_cycle(mut stellar_system: ResMut<StellarSystem>
 
         increment_production(&mut planet.current_product, &planet.info.production, &delta_time);
 
-        log!(logger, {
+        trace!(logger, {
             let planet_id = planet.info.id.0;
             let new_product = &planet.current_product;
             format!("New Product for planet {planet_id} is {new_product}")
@@ -32,7 +32,7 @@ pub(crate) fn stellar_production_cycle(mut stellar_system: ResMut<StellarSystem>
     for warp_gate in battle_state.warp_gates.iter_mut() {
         increment_production(&mut warp_gate.current_product, &warp_gate.production, &delta_time);
 
-        log!(logger, {
+        trace!(logger, {
             let new_product = &warp_gate.current_product;
             format!("New Product for warp gate is {new_product}")
         });

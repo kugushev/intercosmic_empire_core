@@ -38,6 +38,9 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_subscribe_logs")]
         public static extern FFIOutcome ice_subscribe_logs(IntPtr context, FFILog log_delegate);
 
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_toggle_trace")]
+        public static extern FFIOutcome ice_toggle_trace(IntPtr context, bool enabled);
+
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_register_stellar_system")]
         public static extern FFIOutcome ice_register_stellar_system(IntPtr context, StellarSystemId id, Sun sun, StellarSystemParameters parameters);
 

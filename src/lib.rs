@@ -14,6 +14,7 @@ pub fn my_inventory() -> Inventory {
         .register(function!(ffi::ice_close_game))
         .register(function!(ffi::ice_get_last_error))
         .register(function!(ffi::ice_subscribe_logs))
+        .register(function!(ffi::ice_toggle_trace))
         .register(function!(ffi::ice_register_stellar_system))
         .register(function!(ffi::ice_register_planet))
         .register(function!(ffi::ice_start_battle))

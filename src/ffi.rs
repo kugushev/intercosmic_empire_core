@@ -92,6 +92,14 @@ pub extern "C" fn ice_subscribe_logs(context: &mut GameContext, log_delegate: FF
 
 #[ffi_function]
 #[no_mangle]
+pub extern "C" fn ice_toggle_trace(context: &mut GameContext, enabled: bool) -> FFIOutcome {
+    let mut logger = context.logger.borrow_mut();
+    logger.trace_enabled = enabled;
+    FFIOutcome::Ok
+}
+
+#[ffi_function]
+#[no_mangle]
 pub extern "C" fn ice_register_stellar_system(
     context: &mut GameContext,
     id: StellarSystemId,
