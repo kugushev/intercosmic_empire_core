@@ -1,15 +1,15 @@
 use std::ptr;
 use glam::Vec3;
 use interoptopus::patterns::string::AsciiPointer;
-use intercosmic_empire::ffi::{ice_battle_update, ice_build_route_add_waypoint, ice_build_route_new, ice_get_battle_view_model, ice_init_game, ice_register_planet, ice_register_stellar_system, ice_spawn_spaceship, ice_start_battle, ice_subscribe_logs};
-use intercosmic_empire::ffi_models::{ffi_log_println, FFILog, FFIOutcome, RouteBuildersSource};
-use intercosmic_empire::game::battle::battle_params::GAP_BETWEEN_WAYPOINTS;
-use intercosmic_empire::game::game_context::GameContext;
-use intercosmic_empire::game::battle::models::battle_parameters::BattleParameters;
-use intercosmic_empire::game::battle::systems::spaceships::spaceship_movement::SUFFICIENT_DISTANCE_TO_TARGET;
-use intercosmic_empire::game::core::models::faction::Faction;
-use intercosmic_empire::game::core::models::stellar_system::{Orbit, Planet, PlanetId, PlanetInfo, PlanetSize, Production, StellarSystemId, StellarSystemParameters, Sun};
-use intercosmic_empire::game::core::models::stellar_system::spaceport::Spaceport;
+use intercosmic_empire::old_ffi::{ice_battle_update, ice_build_route_add_waypoint, ice_build_route_new, ice_get_battle_view_model, ice_init_game, ice_register_planet, ice_register_stellar_system, ice_spawn_spaceship, ice_start_battle, ice_subscribe_logs};
+use intercosmic_empire::old_ffi_models::{ffi_log_println, FFILog, FFIOutcome, RouteBuildersSource};
+use intercosmic_empire::old::battle::battle_params::GAP_BETWEEN_WAYPOINTS;
+use intercosmic_empire::old::game_context::GameContext;
+use intercosmic_empire::old::battle::models::battle_parameters::BattleParameters;
+use intercosmic_empire::old::battle::systems::spaceships::spaceship_movement::SUFFICIENT_DISTANCE_TO_TARGET;
+use intercosmic_empire::old::core::models::faction::Faction;
+use intercosmic_empire::old::core::models::stellar_system::{Orbit, Planet, PlanetId, PlanetInfo, PlanetSize, Production, StellarSystemId, StellarSystemParameters, Sun};
+use intercosmic_empire::old::core::models::stellar_system::spaceport::Spaceport;
 
 #[test]
 fn spawn_spaceship_start_translation_is_land() {

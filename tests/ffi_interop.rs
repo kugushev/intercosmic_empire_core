@@ -1,6 +1,6 @@
-use intercosmic_empire::ffi::ice_get_battle_stellar_system_view_model;
-use intercosmic_empire::ffi_models::FFIOutcome;
-use intercosmic_empire::game::game_context::GameContext;
+use intercosmic_empire::old_ffi::ice_get_battle_stellar_system_view_model;
+use intercosmic_empire::old_ffi_models::FFIOutcome;
+use intercosmic_empire::old::game_context::GameContext;
 
 #[test]
 fn ice_get_battle_stellar_system_view_model_no_battle() {

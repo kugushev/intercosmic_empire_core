@@ -1,6 +1,6 @@
 use glam::Vec3;
-use intercosmic_empire::game::battle::models::route::RouteBuilder;
-use intercosmic_empire::game::core::models::stellar_system::spaceport::Spaceport;
+use intercosmic_empire::old::battle::models::route::RouteBuilder;
+use intercosmic_empire::old::core::models::stellar_system::spaceport::Spaceport;
 
 #[test]
 fn trim_route_tail_check_tail() {

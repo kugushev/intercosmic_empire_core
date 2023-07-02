@@ -1,14 +1,14 @@
 use std::ops::Index;
 use std::ptr;
 use glam::Vec3;
-use intercosmic_empire::ffi::{ice_battle_open_warp_gate, ice_battle_update, ice_get_battle_stellar_system_view_model, ice_get_battle_view_model, ice_init_game, ice_register_planet, ice_register_stellar_system, ice_start_battle, ice_subscribe_logs};
-use intercosmic_empire::ffi_models::{BattleStateViewModel, ffi_log_println, FFIOutcome, FFIResult, StellarSystemViewModel};
-use intercosmic_empire::game::game_context::GameContext;
-use intercosmic_empire::game::battle::models::battle_parameters::BattleParameters;
-use intercosmic_empire::game::battle::models::warp_gate::WarpGate;
-use intercosmic_empire::game::core::models::faction::Faction;
-use intercosmic_empire::game::core::models::stellar_system::{Orbit, Planet, PlanetId, PlanetInfo, PlanetSize, Production, StellarSystemId, StellarSystemParameters, Sun};
-use intercosmic_empire::game::core::models::stellar_system::spaceport::Spaceport;
+use intercosmic_empire::old_ffi::{ice_battle_open_warp_gate, ice_battle_update, ice_get_battle_stellar_system_view_model, ice_get_battle_view_model, ice_init_game, ice_register_planet, ice_register_stellar_system, ice_start_battle, ice_subscribe_logs};
+use intercosmic_empire::old_ffi_models::{BattleStateViewModel, ffi_log_println, FFIOutcome, FFIResult, StellarSystemViewModel};
+use intercosmic_empire::old::game_context::GameContext;
+use intercosmic_empire::old::battle::models::battle_parameters::BattleParameters;
+use intercosmic_empire::old::battle::models::warp_gate::WarpGate;
+use intercosmic_empire::old::core::models::faction::Faction;
+use intercosmic_empire::old::core::models::stellar_system::{Orbit, Planet, PlanetId, PlanetInfo, PlanetSize, Production, StellarSystemId, StellarSystemParameters, Sun};
+use intercosmic_empire::old::core::models::stellar_system::spaceport::Spaceport;
 
 #[test]
 fn battle_planet_production() {

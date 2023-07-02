@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AK.Scripts.Core.Native;
-using UnityEngine;
 #pragma warning restore 0105
 
 namespace AK.Scripts.Core.Native
@@ -20,59 +19,20 @@ namespace AK.Scripts.Core.Native
         }
 
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_hello_from_rust")]
-        public static extern int ice_hello_from_rust(int a);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_init_app")]
+        public static extern FFIOutcome ice_init_app(ref IntPtr context);
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_steering_seek")]
-        public static extern void ice_steering_seek(ref Vector3 position, ref Vector3 target, float mass, float max_speed, ref Vector3 current_velocity, out Vector3 output);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_close_app")]
+        public static extern FFIOutcome ice_close_app(ref IntPtr context);
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_init_game")]
-        public static extern FFIOutcome ice_init_game(ref IntPtr context);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_app_start_playground")]
+        public static extern FFIResult() ice_app_start_playground(IntPtr context);
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_close_game")]
-        public static extern FFIOutcome ice_close_game(ref IntPtr context);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_game_playground_get_battle_settings")]
+        public static extern FFIResultBattleSettings ice_game_playground_get_battle_settings(IntPtr context);
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_last_error")]
-        public static extern IntPtr ice_get_last_error(IntPtr context);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_subscribe_logs")]
-        public static extern FFIOutcome ice_subscribe_logs(IntPtr context, FFILog log_delegate);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_toggle_trace")]
-        public static extern FFIOutcome ice_toggle_trace(IntPtr context, bool enabled);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_register_stellar_system")]
-        public static extern FFIOutcome ice_register_stellar_system(IntPtr context, StellarSystemId id, Sun sun, StellarSystemParameters parameters);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_register_planet")]
-        public static extern FFIOutcome ice_register_planet(IntPtr context, StellarSystemId id, Planet planet);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_start_battle")]
-        public static extern FFIOutcome ice_start_battle(IntPtr context, BattleParameters parameters);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_open_warp_gate")]
-        public static extern FFIOutcome ice_battle_open_warp_gate(IntPtr context, WarpGate warp_gate, out int warp_gate_id);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_finish_battle")]
-        public static extern void ice_finish_battle(IntPtr context);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_update")]
-        public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_battle_view_model")]
-        public static extern FFIResultBattleStateViewModel ice_get_battle_view_model(IntPtr context);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_battle_stellar_system_view_model")]
-        public static extern FFIResultStellarSystemViewModel ice_get_battle_stellar_system_view_model(IntPtr context);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_build_route_new")]
-        public static extern FFIOutcome ice_build_route_new(IntPtr context, RouteBuildersSource builder_source, ref Vector3 start_position, Spaceport start_spaceport, out int builder_id);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_build_route_add_waypoint")]
-        public static extern FFIOutcome ice_build_route_add_waypoint(IntPtr context, RouteBuildersSource builder_source, int builder_id, ref Vector3 waypoint);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_spawn_spaceship")]
-        public static extern FFIOutcome ice_spawn_spaceship(IntPtr context, RouteBuildersSource route_builder_source, int route_builder_id, ref Vector3 finish_position, ref Spaceport finish_spaceport, ref Faction owner, int spawner_id);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_game_playground_set_battle_settings")]
+        public static extern FFIOutcome ice_game_playground_set_battle_settings(IntPtr context, BattleSettings settings);
 
     }
 
@@ -81,365 +41,35 @@ namespace AK.Scripts.Core.Native
         Ok = 0,
         Unable = 1,
         Error = 2,
-    }
-
-    public enum Faction
-    {
-        White = 0,
-        Red = 1,
-        Green = 2,
-        Blue = 3,
-        Grey = 4,
-    }
-
-    public enum PlanetSize
-    {
-        Mercury = 0,
-        Mars = 1,
-        Earth = 2,
-        Uranus = 3,
-        Saturn = 4,
-        Jupiter = 5,
-    }
-
-    public enum RouteBuildersSource
-    {
-        LeftHand = 0,
-        RightHand = 1,
-        Ai = 2,
-    }
-
-    public enum SpaceshipMark
-    {
-        Viper = 0,
+        Panic = 3,
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct BattleParameters
+    public partial struct BattleSettings
     {
         public int seed;
-        public StellarSystemId stellar_system_id;
+        public int arr0;
+        public int arr1;
+        public int arr2;
+        public int arr3;
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct BattleStateViewModel
+    public partial struct FFIResult()
     {
-        public SliceWarpGate warp_gates;
-        public SliceSpaceshipViewModel spaceships;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct FFIResultBattleStateViewModel
-    {
-        public BattleStateViewModel value;
+        public void value;
         public FFIOutcome outcome;
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct FFIResultStellarSystemViewModel
+    public partial struct FFIResultBattleSettings
     {
-        public StellarSystemViewModel value;
+        public BattleSettings value;
         public FFIOutcome outcome;
     }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct Orbit
-    {
-        public float radius;
-        public float alpha_rotation;
-        public float beta_rotation;
-        public int start_day;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct Planet
-    {
-        public PlanetInfo info;
-        public Vector3 position;
-        public Faction faction;
-        public float current_product;
-        public bool under_siege;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct PlanetId
-    {
-        public int x0;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct PlanetInfo
-    {
-        public PlanetId id;
-        public Orbit orbit;
-        public PlanetSize size;
-        public Production production;
-        public Spaceport spaceport;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct Production
-    {
-        public float amount_per_second;
-        public float max_product;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct Spaceport
-    {
-        public float orbit_radius;
-        public float surface_radius;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct SpaceshipViewModel
-    {
-        public Vector3 position;
-        public Quaternion rotation;
-        public float scale;
-        public Faction faction;
-        public SpaceshipMark mark;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct StellarSystemId
-    {
-        public int x0;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct StellarSystemParameters
-    {
-        public float system_radius;
-        public float min_distance_to_sun;
-        public Vector3 center;
-        public float sun_min_radius;
-        public float sun_max_radius;
-        public int min_planets;
-        public int max_planets;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct StellarSystemViewModel
-    {
-        public StellarSystemId id;
-        public IntPtr sun;
-        public IntPtr parameters;
-        public SlicePlanet planets;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct Sun
-    {
-        public Vector3 position;
-        public float radius;
-    }
-
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct WarpGate
-    {
-        public Vector3 position;
-        public Faction faction;
-        public Production production;
-        public float current_product;
-        public Spaceport spaceport;
-    }
-
-    ///A pointer to an array of data someone else owns which may not be modified.
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct SlicePlanet
-    {
-        ///Pointer to start of immutable data.
-        IntPtr data;
-        ///Number of elements.
-        ulong len;
-    }
-
-    public partial struct SlicePlanet : IEnumerable<Planet>
-    {
-        public SlicePlanet(GCHandle handle, ulong count)
-        {
-            this.data = handle.AddrOfPinnedObject();
-            this.len = count;
-        }
-        public SlicePlanet(IntPtr handle, ulong count)
-        {
-            this.data = handle;
-            this.len = count;
-        }
-        public Planet this[int i]
-        {
-            get
-            {
-                if (i >= Count) throw new IndexOutOfRangeException();
-                var size = Marshal.SizeOf(typeof(Planet));
-                var ptr = new IntPtr(data.ToInt64() + i * size);
-                return Marshal.PtrToStructure<Planet>(ptr);
-            }
-        }
-        public Planet[] Copied
-        {
-            get
-            {
-                var rval = new Planet[len];
-                for (var i = 0; i < (int) len; i++) {
-                    rval[i] = this[i];
-                }
-                return rval;
-            }
-        }
-        public int Count => (int) len;
-        public IEnumerator<Planet> GetEnumerator()
-        {
-            for (var i = 0; i < (int)len; ++i)
-            {
-                yield return this[i];
-            }
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-    }
-
-
-    ///A pointer to an array of data someone else owns which may not be modified.
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct SliceSpaceshipViewModel
-    {
-        ///Pointer to start of immutable data.
-        IntPtr data;
-        ///Number of elements.
-        ulong len;
-    }
-
-    public partial struct SliceSpaceshipViewModel : IEnumerable<SpaceshipViewModel>
-    {
-        public SliceSpaceshipViewModel(GCHandle handle, ulong count)
-        {
-            this.data = handle.AddrOfPinnedObject();
-            this.len = count;
-        }
-        public SliceSpaceshipViewModel(IntPtr handle, ulong count)
-        {
-            this.data = handle;
-            this.len = count;
-        }
-        public SpaceshipViewModel this[int i]
-        {
-            get
-            {
-                if (i >= Count) throw new IndexOutOfRangeException();
-                var size = Marshal.SizeOf(typeof(SpaceshipViewModel));
-                var ptr = new IntPtr(data.ToInt64() + i * size);
-                return Marshal.PtrToStructure<SpaceshipViewModel>(ptr);
-            }
-        }
-        public SpaceshipViewModel[] Copied
-        {
-            get
-            {
-                var rval = new SpaceshipViewModel[len];
-                for (var i = 0; i < (int) len; i++) {
-                    rval[i] = this[i];
-                }
-                return rval;
-            }
-        }
-        public int Count => (int) len;
-        public IEnumerator<SpaceshipViewModel> GetEnumerator()
-        {
-            for (var i = 0; i < (int)len; ++i)
-            {
-                yield return this[i];
-            }
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-    }
-
-
-    ///A pointer to an array of data someone else owns which may not be modified.
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct SliceWarpGate
-    {
-        ///Pointer to start of immutable data.
-        IntPtr data;
-        ///Number of elements.
-        ulong len;
-    }
-
-    public partial struct SliceWarpGate : IEnumerable<WarpGate>
-    {
-        public SliceWarpGate(GCHandle handle, ulong count)
-        {
-            this.data = handle.AddrOfPinnedObject();
-            this.len = count;
-        }
-        public SliceWarpGate(IntPtr handle, ulong count)
-        {
-            this.data = handle;
-            this.len = count;
-        }
-        public WarpGate this[int i]
-        {
-            get
-            {
-                if (i >= Count) throw new IndexOutOfRangeException();
-                var size = Marshal.SizeOf(typeof(WarpGate));
-                var ptr = new IntPtr(data.ToInt64() + i * size);
-                return Marshal.PtrToStructure<WarpGate>(ptr);
-            }
-        }
-        public WarpGate[] Copied
-        {
-            get
-            {
-                var rval = new WarpGate[len];
-                for (var i = 0; i < (int) len; i++) {
-                    rval[i] = this[i];
-                }
-                return rval;
-            }
-        }
-        public int Count => (int) len;
-        public IEnumerator<WarpGate> GetEnumerator()
-        {
-            for (var i = 0; i < (int)len; ++i)
-            {
-                yield return this[i];
-            }
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-    }
-
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate byte FFILog(string log);
 
 
 
