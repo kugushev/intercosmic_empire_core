@@ -16,6 +16,11 @@ pub fn my_inventory() -> Inventory {
         .register(function!(app::game::ice_app_start_playground))
         .register(function!(app::game::game_variants::playground::ice_game_playground_get_battle_settings))
         .register(function!(app::game::game_variants::playground::ice_game_playground_set_battle_settings))
+        .register(function!(app::game::game_variants::playground::ice_game_playground_get_stellar_system_parameters))
+        .register(function!(app::game::game_variants::playground::ice_game_playground_set_stellar_system_parameters))
+        .register(function!(app::game::game_variants::playground::ice_game_playground_add_warpgate))
+        .register(function!(app::game::game_variants::playground::ice_game_playground_start))
+
         // .register(function!(old_ffi::ice_hello_from_rust))
         // .register(function!(old_ffi::ice_steering_seek))
         // .register(function!(old_ffi::ice_init_game))

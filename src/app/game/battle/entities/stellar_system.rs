@@ -1,6 +1,7 @@
 use interoptopus::{ffi_surrogates, ffi_type};
 use glam::Vec3;
 use crate::app::game::battle::entities::productive::Productive;
+use crate::app::game::battle::entities::warp_gate::WarpGate;
 use crate::app::game::core::faction::Faction;
 use crate::app::game::core::stellar_system::planet::PlanetInfo;
 use crate::app::game::core::stellar_system::production::Production;
@@ -14,14 +15,15 @@ use crate::ffi::surrogates::vec3;
 pub struct StellarSystem {
     pub info: StellarSystemInfo,
     pub planets: StructVec5<Planet>,
+    pub warpgates: StructVec5<WarpGate>,
 }
 
 impl StellarSystem {
-    pub fn new(info: StellarSystemInfo, current_faction: Faction) -> Self {
+    pub fn new(info: StellarSystemInfo, current_faction: Faction, warpgates: StructVec5<WarpGate>) -> Self {
         let planets = info.planets.map(|p| {
             Planet::new(p, current_faction, p.orbit.get_position(&info))
         });
-        Self { info, planets }
+        Self { info, planets, warpgates }
     }
 
     pub fn update(&mut self, delta: DeltaTime) {
@@ -54,7 +56,9 @@ impl Planet {
     }
 
     pub(crate) fn update(&mut self, delta: DeltaTime) {
-        self.increment_production(delta);
+        if !self.under_siege {
+            self.increment_production(delta);
+        }
     }
 }
 
