@@ -35,12 +35,10 @@ pub struct StellarSystemInfo {
 
 
 impl StellarSystemInfo {
-    pub fn new(seed: u64, parameters: StellarSystemParameters, uniqueness_registry: &mut UniquenessRegistry, logger_ref: LoggerRef) -> Self {
-        let mut random = Random::new(seed);
-
+    pub fn new(random: &mut Random, parameters: StellarSystemParameters, uniqueness_registry: &mut UniquenessRegistry, logger_ref: LoggerRef) -> Self {
         let id = uniqueness_registry.next_stellar_system_id();
-        let sun = Sun::new(&mut random, &parameters);
-        let planets = Self::gen_planets(&mut random, &parameters, uniqueness_registry, logger_ref);
+        let sun = Sun::new(random, &parameters);
+        let planets = Self::gen_planets(random, &parameters, uniqueness_registry, logger_ref);
 
         Self { id, sun, parameters, planets }
     }
@@ -56,7 +54,7 @@ impl StellarSystemInfo {
             t += 1.0 / planets_count as f32;
 
             let id = uniqueness_registry.next_planet_id();
-            let orbit = Orbit::new(random, parameters, t);
+            let orbit = Orbit::generate_for_planet(random, parameters, t);
             let size = Self::get_planet_size(random, t);
             let planet = PlanetInfo::new(id, orbit, size);
 
@@ -96,6 +94,12 @@ pub struct StellarSystemParameters {
     pub sun_max_radius: f32,
     pub min_planets: i32,
     pub max_planets: i32,
+}
+
+impl StellarSystemParameters {
+    pub fn get_warp_gates_radius(&self) -> f32 {
+        self.system_radius + 0.1
+    }
 }
 
 impl Default for StellarSystemParameters {

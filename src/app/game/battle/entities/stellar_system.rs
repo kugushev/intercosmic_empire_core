@@ -21,7 +21,7 @@ pub struct StellarSystem {
 impl StellarSystem {
     pub fn new(info: StellarSystemInfo, current_faction: Faction, warpgates: StructVec5<WarpGate>, day_of_year: u16) -> Self {
         let planets = info.planets.map(|p| {
-            Planet::new(p, current_faction, p.orbit.get_position(&info, day_of_year))
+            Planet::new(p, current_faction, p.orbit.get_position(info.sun.position, day_of_year))
         });
         Self { info, planets, warpgates }
     }
@@ -29,6 +29,10 @@ impl StellarSystem {
     pub fn update(&mut self, delta: DeltaTime) {
         for planet in self.planets.iter_mut() {
             planet.update(delta);
+        }
+
+        for warpgate in self.warpgates.iter_mut() {
+            warpgate.update(delta);
         }
     }
 }

@@ -8,6 +8,7 @@ use crate::app::game::core::stellar_system::{StellarSystemInfo, StellarSystemPar
 use crate::app::game::core::uniqueness_registry::UniquenessRegistry;
 use crate::app::game::game_variants::GameVariant;
 use crate::app::utils::interop_logger::LoggerRef;
+use crate::app::utils::random::Random;
 use crate::app::utils::struct_vec::StructVec5;
 use crate::ffi::utils::{FFIOutcome, FFIResult};
 
@@ -43,6 +44,7 @@ pub extern "C" fn ice_sandbox_get_battle_settings(context: &mut AppContext) -> F
 #[no_mangle]
 pub extern "C" fn ice_sandbox_set_battle_settings(context: &mut AppContext, settings: BattleSettings) -> FFIOutcome {
     if let Some(GameVariant::Sandbox(p)) = &mut context.game.variant {
+        p.random = Random::new(settings.seed);
         p.battle_settings = settings;
         FFIOutcome::Ok
     } else {
@@ -100,19 +102,20 @@ pub extern "C" fn ice_sandbox_start_battle(context: &mut AppContext) -> FFIOutco
     }
 }
 
-#[derive(Default)]
 pub struct Sandbox {
     current_battle: Option<Battle>,
     battle_settings: BattleSettings,
     stellar_system_parameters: StellarSystemParameters,
     warpgates: StructVec5<WarpGate>,
     uniqueness_registry: UniquenessRegistry,
+    random: Random,
 }
 
 impl Sandbox {
     pub fn add_warpgate(&mut self, faction: Faction) -> Result<(), String> {
-        self.warpgates.add(
-            WarpGate::new(self.battle_settings.seed, faction))
+        let position = WarpGate::generate_position(&mut self.random, &self.stellar_system_parameters);
+        let warp_gate = WarpGate::new(position, faction);
+        self.warpgates.add(warp_gate)
     }
 
     pub fn start_battle(&mut self, logger_ref: LoggerRef) -> Result<(), String> {
@@ -121,7 +124,7 @@ impl Sandbox {
         }
 
         let stellar_system_info = StellarSystemInfo::new(
-            self.battle_settings.seed,
+            &mut self.random,
             self.stellar_system_parameters.clone(),
             &mut self.uniqueness_registry,
             logger_ref,
@@ -146,6 +149,21 @@ impl Sandbox {
             battle.close()?;
         }
         Ok(())
+    }
+}
+
+impl Default for Sandbox {
+    fn default() -> Self {
+        let battle_settings = BattleSettings::default();
+        let random = Random::new(battle_settings.seed);
+        Self {
+            current_battle: None,
+            stellar_system_parameters: StellarSystemParameters::default(),
+            battle_settings,
+            warpgates: StructVec5::default(),
+            uniqueness_registry: UniquenessRegistry::default(),
+            random,
+        }
     }
 }
 

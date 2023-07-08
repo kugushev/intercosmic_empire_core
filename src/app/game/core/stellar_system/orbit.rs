@@ -1,7 +1,7 @@
 use interoptopus::ffi_type;
 use glam::{EulerRot, Quat, Vec3};
 use lerp::Lerp;
-use crate::app::game::core::stellar_system::{StellarSystemInfo, StellarSystemParameters};
+use crate::app::game::core::stellar_system::StellarSystemParameters;
 use crate::app::utils::random::Random;
 
 #[ffi_type]
@@ -19,7 +19,7 @@ pub const ELLIPSE_BETA_MULTIPLIER: f32 = 2.0;
 pub const ALL_ORBITS_ANGLE: f32 = 45.0;
 
 impl Orbit {
-    pub(crate) fn new(random: &mut Random, parameters: &StellarSystemParameters, t: f32) -> Self {
+    pub(crate) fn generate_for_planet(random: &mut Random, parameters: &StellarSystemParameters, t: f32) -> Self {
         let radius = 0.0.lerp(parameters.system_radius, t) + parameters.min_distance_to_sun;
 
         let alpha_variation = (1.0 - t) * 180.0;
@@ -29,12 +29,24 @@ impl Orbit {
         let beta_variation = alpha_variation / ELLIPSE_BETA_MULTIPLIER;
         let beta_rotation = random.range(-beta_variation..beta_variation);
 
-        let start_day = random.range_inclusive(0..=360);
+        let start_day = Self::generate_start_day(random);
 
         Self { radius, alpha_rotation, beta_rotation, start_day }
     }
 
-    pub fn get_position(&self, _stellar_system: &StellarSystemInfo, day_of_year: u16) -> Vec3 {
+    pub(crate) fn generate_for_warpgate(random: &mut Random, parameters: &StellarSystemParameters) -> Self {
+        let start_day = Self::generate_start_day(random);
+        Self {
+            radius: parameters.get_warp_gates_radius(),
+            alpha_rotation: 0.0,
+            beta_rotation: 0.0,
+            start_day,
+        }
+    }
+
+    fn generate_start_day(random: &mut Random) -> i32 { random.range_inclusive(0..=360) }
+
+    pub fn get_position(&self, sun_position: Vec3, day_of_year: u16) -> Vec3 {
         if self.start_day == MOCK_START_DAY {
             return Vec3::new(self.radius, self.alpha_rotation, self.beta_rotation);
         }
@@ -42,7 +54,6 @@ impl Orbit {
         let angle = (day_of_year as f32 + self.start_day as f32).to_radians();
         let small_radius = self.radius / ELLIPSE_BETA_MULTIPLIER;
 
-        let sun_position = _stellar_system.sun.position;
         let x = sun_position.x + self.radius * angle.cos();
         let y = sun_position.y + small_radius * angle.sin();
         let z = sun_position.z;

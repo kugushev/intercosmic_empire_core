@@ -2,8 +2,13 @@ use interoptopus::{ffi_surrogates, ffi_type};
 use glam::Vec3;
 use crate::app::game::battle::entities::productive::Productive;
 use crate::app::game::core::faction::Faction;
+use crate::app::game::core::stellar_system::orbit::Orbit;
+use crate::app::game::core::stellar_system::planet_size::PlanetSize;
 use crate::app::game::core::stellar_system::production::Production;
 use crate::app::game::core::stellar_system::spaceport::Spaceport;
+use crate::app::game::core::stellar_system::StellarSystemParameters;
+use crate::app::utils::delta_time::DeltaTime;
+use crate::app::utils::random::Random;
 use crate::ffi::surrogates::vec3;
 
 #[ffi_type]
@@ -19,9 +24,25 @@ pub struct WarpGate {
 }
 
 impl WarpGate {
-    pub fn new(_seed: u64, _faction: Faction) -> Self {
-        // todo: use faction to determine range in sphere
-        todo!("Create new random warpgate")
+    pub(crate) fn update(&mut self, delta: DeltaTime) {
+        self.increment_production(delta);
+    }
+}
+
+impl WarpGate {
+    pub fn new(position: Vec3, faction: Faction) -> Self {
+        Self {
+            position,
+            faction,
+            production: Production::new(PlanetSize::Jupiter),
+            current_product: 0.0,
+            spaceport: Spaceport::new(PlanetSize::Mercury),
+        }
+    }
+
+    pub fn generate_position(random: &mut Random, stellar_system_parameters: &StellarSystemParameters) -> Vec3 {
+        let orbit = Orbit::generate_for_warpgate(random, stellar_system_parameters);
+        orbit.get_position(stellar_system_parameters.center, 0)
     }
 }
 
