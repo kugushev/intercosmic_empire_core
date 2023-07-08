@@ -19,7 +19,7 @@ pub struct WarpGate {
 }
 
 impl WarpGate {
-    pub fn new(_seed: i32, _faction: Faction) -> Self {
+    pub fn new(_seed: u64, _faction: Faction) -> Self {
         // todo: use faction to determine range in sphere
         todo!("Create new random warpgate")
     }

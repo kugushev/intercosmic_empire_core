@@ -13,6 +13,7 @@ pub fn my_inventory() -> Inventory {
         .register(function!(ffi::ice_init_app))
         .register(function!(ffi::ice_close_app))
         .register(function!(app::ice_app_update))
+        .register(function!(app::utils::interop_logger::ice_app_subscribe_logs))
         .register(function!(app::game::ice_app_start_playground))
         .register(function!(app::game::game_variants::playground::ice_game_playground_get_battle_settings))
         .register(function!(app::game::game_variants::playground::ice_game_playground_set_battle_settings))

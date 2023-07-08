@@ -86,6 +86,15 @@ impl<T> StructVec5<T> {
         }
     }
 
+    pub fn add(&mut self, value: T) -> Result<(), String> {
+        if self.count >= 5 {
+            return Err("Vector is full".to_string());
+        }
+        self.items[self.count as usize] = value;
+        self.count += 1;
+        Ok(())
+    }
+
     pub fn iter_mut(&mut self) -> StructVec5IterMut<T> {
         StructVec5IterMut {
             vec: self,

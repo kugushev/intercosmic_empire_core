@@ -1,16 +1,19 @@
 use crate::app::game::battle::entities::stellar_system::StellarSystem;
+use crate::app::game::battle::entities::warp_gate::WarpGate;
+use crate::app::game::core::battle_settings::BattleSettings;
 use crate::app::game::core::faction::Faction;
 use crate::app::game::core::stellar_system::StellarSystemInfo;
 use crate::app::utils::DeltaTime;
+use crate::app::utils::struct_vec::StructVec5;
 
 pub struct ActiveBattle {
     stellar_system: StellarSystem,
 }
 
 impl ActiveBattle {
-    pub fn new(stellar_system_info: StellarSystemInfo, stellar_system_faction: Faction) -> Self {
+    pub fn new(settings: BattleSettings, stellar_system_info: StellarSystemInfo, stellar_system_faction: Faction, warpgates: StructVec5<WarpGate>) -> Self {
         Self {
-            stellar_system: StellarSystem::new(stellar_system_info, stellar_system_faction)
+            stellar_system: StellarSystem::new(stellar_system_info, stellar_system_faction, warpgates, settings.day_of_year)
         }
     }
 
@@ -22,13 +25,19 @@ impl ActiveBattle {
 #[cfg(test)]
 mod tests {
     use crate::app::game::battle::active_battle::ActiveBattle;
+    use crate::app::game::core::battle_settings::BattleSettings;
     use crate::app::game::core::faction::Faction;
     use crate::app::game::core::stellar_system::StellarSystemInfo;
     use crate::app::utils::DeltaTime;
+    use crate::app::utils::struct_vec::StructVec5;
 
     #[test]
     fn production_on_update() {
-        let mut battle = ActiveBattle::new(StellarSystemInfo::default(), Faction::Red);
+        let mut battle = ActiveBattle::new(
+            BattleSettings::default(),
+            StellarSystemInfo::default(),
+            Faction::Red,
+            StructVec5::default());
 
         assert_current_product(&mut battle, (0.0, 0.0, 0.0));
 

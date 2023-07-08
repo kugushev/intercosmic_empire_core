@@ -19,9 +19,9 @@ pub struct StellarSystem {
 }
 
 impl StellarSystem {
-    pub fn new(info: StellarSystemInfo, current_faction: Faction, warpgates: StructVec5<WarpGate>) -> Self {
+    pub fn new(info: StellarSystemInfo, current_faction: Faction, warpgates: StructVec5<WarpGate>, day_of_year: u16) -> Self {
         let planets = info.planets.map(|p| {
-            Planet::new(p, current_faction, p.orbit.get_position(&info))
+            Planet::new(p, current_faction, p.orbit.get_position(&info, day_of_year))
         });
         Self { info, planets, warpgates }
     }

@@ -2,10 +2,19 @@ use std::cell::RefCell;
 use std::ffi::CString;
 use std::rc::{Rc, Weak};
 use interoptopus::patterns::string::AsciiPointer;
-use bevy_ecs::prelude::Resource;
-use crate::old_ffi_models::FFILog;
+use interoptopus::ffi_function;
+use crate::app::AppContext;
+use crate::ffi::utils::{FFILog, FFIOutcome};
 
-#[derive(Resource, Default)]
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_app_subscribe_logs(context: &mut AppContext, log_delegate: FFILog) -> FFIOutcome {
+    let ffi_log = &mut context.logger.borrow_mut().ffi_log;
+    *ffi_log = log_delegate;
+    FFIOutcome::Ok
+}
+
+#[derive(Default)]
 pub struct InteropLogger {
     pub ffi_log: FFILog,
     pub trace_enabled: bool,
@@ -20,7 +29,7 @@ impl InteropLogger {
 }
 
 #[macro_export]
-macro_rules! trace_old {
+macro_rules! trace {
     ($loggerRef:ident, $e:expr) => {
         {
             let cell = $loggerRef.0.upgrade().expect("Unable to unwrap logger RC");
@@ -33,10 +42,9 @@ macro_rules! trace_old {
     };
 }
 
+#[derive(Clone)]
 pub struct LoggerRef(pub Weak<RefCell<InteropLogger>>);
 
 impl LoggerRef {
-    pub fn new(rc: &Rc<RefCell<InteropLogger>>) -> LoggerRef {
-        LoggerRef(Rc::downgrade(rc))
-    }
+    pub fn new(rc: &Rc<RefCell<InteropLogger>>) -> LoggerRef { LoggerRef(Rc::downgrade(rc)) }
 }

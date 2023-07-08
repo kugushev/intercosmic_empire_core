@@ -13,7 +13,7 @@ use crate::old::core::models::spaceships::spaceship_parameters::SpaceshipParamet
 use crate::old::core::models::stellar_system::StellarSystem;
 use crate::old::core::models::stellar_system::production::Productive;
 use crate::old::utils::interop_logger::LoggerRef;
-use crate::trace;
+use crate::trace_old;
 
 #[ffi_type(opaque)]
 pub struct BattleContext {
@@ -64,7 +64,7 @@ impl BattleContext {
         let success = match found {
             Some(p) => {
                 let produced = p.try_produce(parameters.cost);
-                trace!(logger, format!("Produced={produced} from planet {} {}/{}", p.info.id.0, p.current_product, parameters.cost));
+                trace_old!(logger, format!("Produced={produced} from planet {} {}/{}", p.info.id.0, p.current_product, parameters.cost));
                 produced
             }
             None => {
@@ -73,13 +73,13 @@ impl BattleContext {
                 assert!(id < warp_gates.len());
                 let warp_gate = &mut warp_gates[id];
                 let produced = warp_gate.try_produce(parameters.cost);
-                trace!(logger, format!("Produced={produced} from warp gate {id} {}/{}", warp_gate.current_product, parameters.cost));
+                trace_old!(logger, format!("Produced={produced} from warp gate {id} {}/{}", warp_gate.current_product, parameters.cost));
                 produced
             }
         };
 
         if success {
-            trace!(logger, format!("Create spaceship mark {} {}", mark.clone() as i32, faction.clone() as i32));
+            trace_old!(logger, format!("Create spaceship mark {} {}", mark.clone() as i32, faction.clone() as i32));
             create_spaceship(ecs_world, route, faction.clone(), mark);
         }
     }

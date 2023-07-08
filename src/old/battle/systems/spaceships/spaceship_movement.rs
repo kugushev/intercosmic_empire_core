@@ -5,7 +5,7 @@ use crate::old::battle::components::translation::Translation;
 use crate::old::battle::utils::game_time::GameTime;
 use crate::old::core::models::spaceships::spaceship_parameters::SpaceshipParameters;
 use crate::old::utils::interop_logger::LoggerRef;
-use crate::trace;
+use crate::trace_old;
 
 pub const SUFFICIENT_DISTANCE_TO_TARGET: f32 = 0.025;
 
@@ -21,13 +21,13 @@ pub(crate) fn spaceship_move(mut query: Query<(&mut Spaceship, &mut Translation,
             let parameters = SpaceshipParameters::get_parameters(&spaceship.mark);
             seek_to_waypoint(&mut translation, *target, parameters, &mut steering, time.delta_time);
 
-            trace!(logger, format!("Move to {target} p:{} r:{}", translation.position, translation.rotation));
+            trace_old!(logger, format!("Move to {target} p:{} r:{}", translation.position, translation.rotation));
 
             if translation.position.distance(*target) <= SUFFICIENT_DISTANCE_TO_TARGET {
                 spaceship.target_waypoint += 1;
             }
         } else {
-            trace!(logger, format!("All waypoints are visited"));
+            trace_old!(logger, format!("All waypoints are visited"));
         }
     }
 }

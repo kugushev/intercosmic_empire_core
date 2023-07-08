@@ -1,6 +1,9 @@
 use interoptopus::ffi_type;
-use glam::Vec3;
-use crate::app::game::core::stellar_system::StellarSystemInfo;
+use glam::{EulerRot, Quat, Vec3};
+use lerp::Lerp;
+use rand::prelude::SmallRng;
+use rand::Rng;
+use crate::app::game::core::stellar_system::{StellarSystemInfo, StellarSystemParameters};
 
 #[ffi_type]
 #[repr(C)]
@@ -13,14 +16,46 @@ pub struct Orbit {
 }
 
 pub const MOCK_START_DAY: i32 = -1;
+pub const ELLIPSE_BETA_MULTIPLIER: f32 = 2.0;
+pub const ALL_ORBITS_ANGLE: f32 = 45.0;
 
 impl Orbit {
-    pub fn get_position(&self, _stellar_system: &StellarSystemInfo) -> Vec3 {
+    pub(crate) fn new(rng: &mut SmallRng, parameters: &StellarSystemParameters, t: f32) -> Self {
+        let radius = 0.0.lerp(parameters.system_radius, t) + parameters.min_distance_to_sun;
+
+        let alpha_variation = (1.0 - t) * 180.0;
+        let alpha_rotation = rng.gen_range(-alpha_variation..alpha_variation);
+
+        // should be smaller to avoid touching player belly
+        let beta_variation = alpha_variation / ELLIPSE_BETA_MULTIPLIER;
+        let beta_rotation = rng.gen_range(-beta_variation..beta_variation);
+
+        let start_day = rng.gen_range(0..360);
+
+        Self { radius, alpha_rotation, beta_rotation, start_day }
+    }
+
+    pub fn get_position(&self, _stellar_system: &StellarSystemInfo, day_of_year: u16) -> Vec3 {
         if self.start_day == MOCK_START_DAY {
             return Vec3::new(self.radius, self.alpha_rotation, self.beta_rotation);
         }
 
-        todo!("generate position based on orbit")
+        let angle = (day_of_year as f32 + self.start_day as f32).to_radians();
+        let small_radius = self.radius / ELLIPSE_BETA_MULTIPLIER;
+
+        let sun_position = _stellar_system.sun.position;
+        let x = sun_position.x + self.radius * angle.cos();
+        let y = sun_position.y + small_radius * angle.sin();
+        let z = sun_position.z;
+
+        let flat_position = Vec3::new(x, y, z);
+
+        let rotation = Quat::from_euler(EulerRot::default(),
+                                        self.alpha_rotation + ALL_ORBITS_ANGLE,
+                                        self.beta_rotation
+                                        , 0.0);
+
+        rotation * (flat_position - sun_position) + sun_position
     }
 }
 
