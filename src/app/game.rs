@@ -5,17 +5,18 @@ pub mod battle;
 use interoptopus::ffi_function;
 use crate::app::AppContext;
 use crate::app::game::game_variants::GameVariant;
-use crate::app::utils::DeltaTime;
-use crate::ffi::utils::FFIResult;
+use crate::ffi::utils::FFIOutcome;
 
 #[ffi_function]
 #[no_mangle]
-pub extern "C" fn ice_app_start_playground(context: &mut AppContext) -> FFIResult<()> {
+pub extern "C" fn ice_start_sandbox(context: &mut AppContext) -> FFIOutcome {
     let guard = &mut context.guard;
     let game = &mut context.game;
-    guard.wrap(|| {
-        game.start_playground()
-    })
+    let result = guard.wrap(|| {
+        game.start_sandbox()?;
+        Ok(())
+    });
+    result.outcome
 }
 
 #[derive(Default)]
@@ -24,16 +25,10 @@ pub struct GameContext {
 }
 
 impl GameContext {
-    pub fn update(&mut self, delta: DeltaTime) {
-        if let Some(game) = &mut self.variant {
-            game.update(delta);
-        }
-    }
-
-    pub fn start_playground(&mut self) -> Result<(), String> {
+    pub fn start_sandbox(&mut self) -> Result<(), String> {
         match &self.variant {
             None => {
-                self.variant = Some(GameVariant::new_playground());
+                self.variant = Some(GameVariant::new_sandbox());
                 Ok(())
             }
             Some(variant) => {

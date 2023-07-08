@@ -6,8 +6,14 @@ use crate::app::game::core::stellar_system::spaceport::Spaceport;
 
 #[ffi_type]
 #[repr(C)]
+#[derive(Copy, Clone, Eq, Hash, PartialEq)]
+pub struct PlanetId(pub i32);
+
+#[ffi_type]
+#[repr(C)]
 #[derive(Clone)]
 pub struct PlanetInfo {
+    pub id: PlanetId,
     pub orbit: Orbit,
     pub size: PlanetSize,
     pub production: Production,
@@ -15,8 +21,9 @@ pub struct PlanetInfo {
 }
 
 impl PlanetInfo {
-    pub fn new(orbit: Orbit, size: PlanetSize) -> Self {
+    pub fn new(id: PlanetId, orbit: Orbit, size: PlanetSize) -> Self {
         Self {
+            id,
             orbit,
             size,
             production: Production::new(size),
@@ -24,5 +31,7 @@ impl PlanetInfo {
         }
     }
 }
+
+
 
 

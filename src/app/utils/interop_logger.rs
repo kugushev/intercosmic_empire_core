@@ -8,9 +8,17 @@ use crate::ffi::utils::{FFILog, FFIOutcome};
 
 #[ffi_function]
 #[no_mangle]
-pub extern "C" fn ice_app_subscribe_logs(context: &mut AppContext, log_delegate: FFILog) -> FFIOutcome {
+pub extern "C" fn ice_subscribe_logs(context: &mut AppContext, log_delegate: FFILog) -> FFIOutcome {
     let ffi_log = &mut context.logger.borrow_mut().ffi_log;
     *ffi_log = log_delegate;
+    FFIOutcome::Ok
+}
+
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_toggle_trace(context: &mut AppContext, enabled: bool) -> FFIOutcome {
+    let mut logger = context.logger.borrow_mut();
+    logger.trace_enabled = enabled;
     FFIOutcome::Ok
 }
 

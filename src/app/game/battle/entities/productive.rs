@@ -1,5 +1,5 @@
 use crate::app::game::core::stellar_system::production::Production;
-use crate::app::utils::DeltaTime;
+use crate::app::utils::delta_time::DeltaTime;
 
 pub trait Productive {
     fn get_production(&self) -> &Production;

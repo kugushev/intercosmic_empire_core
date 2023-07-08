@@ -6,7 +6,7 @@ use crate::app::game::core::faction::Faction;
 use crate::app::game::core::stellar_system::planet::PlanetInfo;
 use crate::app::game::core::stellar_system::production::Production;
 use crate::app::game::core::stellar_system::StellarSystemInfo;
-use crate::app::utils::DeltaTime;
+use crate::app::utils::delta_time::DeltaTime;
 use crate::app::utils::struct_vec::StructVec5;
 use crate::ffi::surrogates::vec3;
 

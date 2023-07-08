@@ -17,6 +17,7 @@ bevy_ecs = "0.10.1"
 base64 = "0.21.2"
 rand = { version = "0.8.5", features = ["small_rng"] }
 lerp = "0.4.0"
+backtrace="0.3.67"
 
 [dev-dependencies]
 interoptopus_backend_csharp = "0.14.15"

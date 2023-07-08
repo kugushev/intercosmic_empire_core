@@ -1,7 +1,7 @@
 use interoptopus::{ffi_surrogates, ffi_type};
 use glam::Vec3;
-use rand::Rng;
 use crate::app::game::core::stellar_system::StellarSystemParameters;
+use crate::app::utils::random::Random;
 use crate::ffi::surrogates::vec3;
 
 #[ffi_type]
@@ -14,11 +14,11 @@ pub struct Sun {
 }
 
 impl Sun {
-    pub fn new(rng: &mut impl Rng, p: &StellarSystemParameters) -> Self {
-        let radius = rng.gen_range(p.sun_min_radius..p.sun_max_radius);
+    pub fn new(random: &mut Random, p: &StellarSystemParameters) -> Self {
+        let radius = random.range_inclusive(p.sun_min_radius..=p.sun_max_radius);
         Self {
             position: p.center,
-            radius
+            radius,
         }
     }
 }

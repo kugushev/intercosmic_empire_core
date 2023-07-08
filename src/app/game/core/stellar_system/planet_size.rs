@@ -1,4 +1,11 @@
-use interoptopus::ffi_type;
+use interoptopus::{ffi_type, ffi_function};
+
+
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_registry_get_planet_ratio(size: PlanetSize) -> f32 {
+    size.get_ratio()
+}
 
 #[ffi_type]
 #[repr(C)]

@@ -1,9 +1,8 @@
 use interoptopus::ffi_type;
 use glam::{EulerRot, Quat, Vec3};
 use lerp::Lerp;
-use rand::prelude::SmallRng;
-use rand::Rng;
 use crate::app::game::core::stellar_system::{StellarSystemInfo, StellarSystemParameters};
+use crate::app::utils::random::Random;
 
 #[ffi_type]
 #[repr(C)]
@@ -20,17 +19,17 @@ pub const ELLIPSE_BETA_MULTIPLIER: f32 = 2.0;
 pub const ALL_ORBITS_ANGLE: f32 = 45.0;
 
 impl Orbit {
-    pub(crate) fn new(rng: &mut SmallRng, parameters: &StellarSystemParameters, t: f32) -> Self {
+    pub(crate) fn new(random: &mut Random, parameters: &StellarSystemParameters, t: f32) -> Self {
         let radius = 0.0.lerp(parameters.system_radius, t) + parameters.min_distance_to_sun;
 
         let alpha_variation = (1.0 - t) * 180.0;
-        let alpha_rotation = rng.gen_range(-alpha_variation..alpha_variation);
+        let alpha_rotation = random.range(-alpha_variation..alpha_variation);
 
         // should be smaller to avoid touching player belly
         let beta_variation = alpha_variation / ELLIPSE_BETA_MULTIPLIER;
-        let beta_rotation = rng.gen_range(-beta_variation..beta_variation);
+        let beta_rotation = random.range(-beta_variation..beta_variation);
 
-        let start_day = rng.gen_range(0..360);
+        let start_day = random.range_inclusive(0..=360);
 
         Self { radius, alpha_rotation, beta_rotation, start_day }
     }

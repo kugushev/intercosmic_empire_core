@@ -1,7 +1,7 @@
 use std::ptr;
 use glam::Vec3;
 use interoptopus::patterns::string::AsciiPointer;
-use intercosmic_empire::old_ffi::{ice_battle_update, ice_build_route_add_waypoint, ice_build_route_new, ice_get_battle_view_model, ice_init_game, ice_register_planet, ice_register_stellar_system, ice_spawn_spaceship, ice_start_battle, ice_subscribe_logs};
+use intercosmic_empire::old_ffi::{ice_battle_update_old, ice_build_route_add_waypoint, ice_build_route_new, ice_get_battle_view_model, ice_init_game, ice_register_planet, ice_register_stellar_system, ice_spawn_spaceship, ice_start_battle, ice_subscribe_logs_old};
 use intercosmic_empire::old_ffi_models::{ffi_log_println, FFILog, FFIOutcome, RouteBuildersSource};
 use intercosmic_empire::old::battle::battle_params::GAP_BETWEEN_WAYPOINTS;
 use intercosmic_empire::old::game_context::GameContext;
@@ -18,7 +18,7 @@ fn spawn_spaceship_start_translation_is_land() {
     ice_init_game(&mut game_context_ptr).assert(FFIOutcome::Ok);
     let game_context = unsafe { &mut (*game_context_ptr) };
 
-    ice_subscribe_logs(game_context, ffi_log_println());
+    ice_subscribe_logs_old(game_context, ffi_log_println());
 
     let stellar_system_id = StellarSystemId(42);
     ice_register_stellar_system(game_context, stellar_system_id,
@@ -55,7 +55,7 @@ fn spawn_spaceship_start_translation_is_land() {
 
     let mut elapsed = 0.0;
     while elapsed < 10.0 {
-        ice_battle_update(game_context, DELTA_TIME_120_FPS).assert(FFIOutcome::Ok);
+        ice_battle_update_old(game_context, DELTA_TIME_120_FPS).assert(FFIOutcome::Ok);
         elapsed += DELTA_TIME_120_FPS;
 
         let battle_vm = ice_get_battle_view_model(game_context);

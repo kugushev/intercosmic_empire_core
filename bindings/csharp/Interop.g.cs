@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AK.Scripts.Core.Native;
+using UnityEngine;
 #pragma warning restore 0105
 
 namespace AK.Scripts.Core.Native
@@ -25,14 +26,47 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_close_app")]
         public static extern FFIOutcome ice_close_app(ref IntPtr context);
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_app_start_playground")]
-        public static extern FFIResult() ice_app_start_playground(IntPtr context);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_registry_get_planet_ratio")]
+        public static extern float ice_registry_get_planet_ratio(PlanetSize size);
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_game_playground_get_battle_settings")]
-        public static extern FFIResultBattleSettings ice_game_playground_get_battle_settings(IntPtr context);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_last_exception")]
+        public static extern IntPtr ice_get_last_exception(IntPtr context);
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_game_playground_set_battle_settings")]
-        public static extern FFIOutcome ice_game_playground_set_battle_settings(IntPtr context, BattleSettings settings);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_subscribe_logs")]
+        public static extern FFIOutcome ice_subscribe_logs(IntPtr context, FFILog log_delegate);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_toggle_trace")]
+        public static extern FFIOutcome ice_toggle_trace(IntPtr context, bool enabled);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_update")]
+        public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_get_vm")]
+        public static extern FFIResultBattleViewModel ice_battle_get_vm(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_start_sandbox")]
+        public static extern FFIOutcome ice_start_sandbox(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_close")]
+        public static extern FFIOutcome ice_sandbox_close(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_get_battle_settings")]
+        public static extern FFIResultBattleSettings ice_sandbox_get_battle_settings(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_set_battle_settings")]
+        public static extern FFIOutcome ice_sandbox_set_battle_settings(IntPtr context, BattleSettings settings);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_get_stellar_system_parameters")]
+        public static extern FFIResultStellarSystemParameters ice_sandbox_get_stellar_system_parameters(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_set_stellar_system_parameters")]
+        public static extern FFIOutcome ice_sandbox_set_stellar_system_parameters(IntPtr context, StellarSystemParameters parameters);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_add_warpgate")]
+        public static extern FFIOutcome ice_sandbox_add_warpgate(IntPtr context, Faction faction);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_start_battle")]
+        public static extern FFIOutcome ice_sandbox_start_battle(IntPtr context);
 
     }
 
@@ -44,23 +78,38 @@ namespace AK.Scripts.Core.Native
         Panic = 3,
     }
 
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct BattleSettings
+    public enum Faction
     {
-        public int seed;
-        public int arr0;
-        public int arr1;
-        public int arr2;
-        public int arr3;
+        White = 0,
+        Red = 1,
+        Green = 2,
+        Blue = 3,
+        Grey = 4,
+    }
+
+    public enum PlanetSize
+    {
+        Mercury = 0,
+        Mars = 1,
+        Earth = 2,
+        Uranus = 3,
+        Saturn = 4,
+        Jupiter = 5,
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct FFIResult()
+    public partial struct BattleSettings
     {
-        public void value;
-        public FFIOutcome outcome;
+        public ulong seed;
+        public ushort day_of_year;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct BattleViewModel
+    {
+        public IntPtr stellar_system;
     }
 
     [Serializable]
@@ -70,6 +119,174 @@ namespace AK.Scripts.Core.Native
         public BattleSettings value;
         public FFIOutcome outcome;
     }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFIResultBattleViewModel
+    {
+        public BattleViewModel value;
+        public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFIResultStellarSystemParameters
+    {
+        public StellarSystemParameters value;
+        public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct Orbit
+    {
+        public float radius;
+        public float alpha_rotation;
+        public float beta_rotation;
+        public int start_day;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct Planet
+    {
+        public PlanetInfo info;
+        public Vector3 position;
+        public Faction faction;
+        public float current_product;
+        public bool under_siege;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct PlanetId
+    {
+        public int x0;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct PlanetInfo
+    {
+        public PlanetId id;
+        public Orbit orbit;
+        public PlanetSize size;
+        public Production production;
+        public Spaceport spaceport;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct Production
+    {
+        public float amount_per_second;
+        public float max_product;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct Spaceport
+    {
+        public float orbit_radius;
+        public float surface_radius;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct StellarSystem
+    {
+        public StellarSystemInfo info;
+        public StructVec5Planet planets;
+        public StructVec5WarpGate warpgates;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct StellarSystemId
+    {
+        public int x0;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct StellarSystemInfo
+    {
+        public StellarSystemId id;
+        public Sun sun;
+        public StellarSystemParameters parameters;
+        public StructVec5PlanetInfo planets;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct StellarSystemParameters
+    {
+        public float system_radius;
+        public float min_distance_to_sun;
+        public Vector3 center;
+        public float sun_min_radius;
+        public float sun_max_radius;
+        public int min_planets;
+        public int max_planets;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct StructVec5Planet
+    {
+        Planet items0;
+        Planet items1;
+        Planet items2;
+        Planet items3;
+        Planet items4;
+        byte count;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct StructVec5PlanetInfo
+    {
+        PlanetInfo items0;
+        PlanetInfo items1;
+        PlanetInfo items2;
+        PlanetInfo items3;
+        PlanetInfo items4;
+        byte count;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct StructVec5WarpGate
+    {
+        WarpGate items0;
+        WarpGate items1;
+        WarpGate items2;
+        WarpGate items3;
+        WarpGate items4;
+        byte count;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct Sun
+    {
+        public Vector3 position;
+        public float radius;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct WarpGate
+    {
+        public Vector3 position;
+        public Faction faction;
+        public Production production;
+        public float current_product;
+        public Spaceport spaceport;
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate byte FFILog(string log);
 
 
 

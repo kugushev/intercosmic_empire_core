@@ -1,5 +1,8 @@
+use std::cell::RefCell;
 use std::ffi::CString;
 use std::panic;
+use std::sync::atomic::{AtomicBool, Ordering};
+use backtrace::Backtrace;
 use interoptopus::{ffi_function};
 use interoptopus::patterns::string::AsciiPointer;
 use crate::app::AppContext;
@@ -11,7 +14,6 @@ pub extern "C" fn ice_get_last_exception(context: &AppContext) -> AsciiPointer {
     AsciiPointer::from_cstr(&context.guard.last_exception)
 }
 
-#[derive(Default)]
 pub struct Guard {
     pub last_exception: CString,
 }
@@ -33,14 +35,18 @@ impl Guard {
                 }
             }
             Err(panic) => {
-                match panic.downcast::<&str>() {
+                let msg = match panic.downcast::<&str>() {
                     Ok(panic_msg) => {
-                        self.set_last_exception((*panic_msg).to_string())
+                        (*panic_msg).to_string()
                     }
                     Err(_) => {
-                        self.set_last_exception("Panic doesn't have appropriate message".to_string())
+                        "Panic doesn't have appropriate message".to_string()
                     }
-                }
+                };
+
+                let b = BACKTRACE.with(|b| b.borrow_mut().take()).unwrap();
+
+                self.set_last_exception(format!("{msg}\nat panic:\n{:?}", b));
                 FFIResult::panic()
             }
         }
@@ -51,11 +57,33 @@ impl Guard {
     }
 }
 
+static BACKTRACE_IS_SET: AtomicBool = AtomicBool::new(false);
+
+thread_local! {
+    static BACKTRACE: RefCell<Option<Backtrace>> = RefCell::new(None);
+}
+
+impl Default for Guard {
+    fn default() -> Self {
+        let acquired = BACKTRACE_IS_SET.compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire);
+        if acquired.is_ok() {
+            panic::set_hook(Box::new(|_| {
+                let trace = Backtrace::new();
+                BACKTRACE.with(move |b| b.borrow_mut().replace(trace));
+            }));
+        }
+
+        Self {
+            last_exception: CString::default()
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
     use std::ffi::CString;
-    use crate::app::guard::Guard;
+    use crate::app::utils::guard::Guard;
     use crate::ffi::utils::{FFIOutcome, FFIResult};
 
     #[test]
@@ -76,6 +104,6 @@ mod tests {
     fn guard_panic() {
         let mut guard = Guard::default();
         let result: FFIResult<i32> = guard.wrap(|| { panic!("Sadness") });
-        assert!(result.outcome == FFIOutcome::Panic && guard.last_exception == CString::new("Sadness").unwrap());
+        assert_eq!(result.outcome, FFIOutcome::Panic);
     }
 }

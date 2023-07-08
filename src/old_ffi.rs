@@ -85,7 +85,7 @@ pub extern "C" fn ice_get_last_error(context: &GameContext) -> AsciiPointer {
 
 #[ffi_function]
 #[no_mangle]
-pub extern "C" fn ice_subscribe_logs(context: &mut GameContext, log_delegate: FFILog) -> FFIOutcome {
+pub extern "C" fn ice_subscribe_logs_old(context: &mut GameContext, log_delegate: FFILog) -> FFIOutcome {
     let ffi_log = &mut context.logger.borrow_mut().ffi_log;
     *ffi_log = log_delegate;
     FFIOutcome::Ok
@@ -93,7 +93,7 @@ pub extern "C" fn ice_subscribe_logs(context: &mut GameContext, log_delegate: FF
 
 #[ffi_function]
 #[no_mangle]
-pub extern "C" fn ice_toggle_trace(context: &mut GameContext, enabled: bool) -> FFIOutcome {
+pub extern "C" fn ice_toggle_trace_old(context: &mut GameContext, enabled: bool) -> FFIOutcome {
     let mut logger = context.logger.borrow_mut();
     logger.trace_enabled = enabled;
     FFIOutcome::Ok
@@ -157,7 +157,7 @@ pub extern "C" fn ice_finish_battle(context: &mut GameContext) {
 
 #[ffi_function]
 #[no_mangle]
-pub extern "C" fn ice_battle_update(
+pub extern "C" fn ice_battle_update_old(
     context: &mut GameContext,
     delta_time: f32,
 ) -> FFIOutcome {
