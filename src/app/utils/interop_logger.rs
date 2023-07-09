@@ -40,19 +40,20 @@ impl InteropLogger {
 macro_rules! trace {
     ($loggerRef:ident, $e:expr) => {
         {
-            let cell = $loggerRef.0.upgrade().expect("Unable to unwrap logger RC");
-            let mut logger = cell.borrow_mut();
-            if logger.trace_enabled {
-                let module = module_path!();
-                logger.trace(format!("{}: {}", module, $e));
+            if let Some(cell) = $loggerRef.0.upgrade() {
+                let mut logger = cell.borrow_mut();
+                if logger.trace_enabled {
+                    let module = module_path!();
+                    logger.trace(format!("{}: {}", module, $e));
+                }
             }
         }
     };
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct LoggerRef(pub Weak<RefCell<InteropLogger>>);
 
 impl LoggerRef {
-    pub fn new(rc: &Rc<RefCell<InteropLogger>>) -> LoggerRef { LoggerRef(Rc::downgrade(rc)) }
+    pub fn new(rc: &Rc<RefCell<InteropLogger>>) -> Self { Self(Rc::downgrade(rc)) }
 }

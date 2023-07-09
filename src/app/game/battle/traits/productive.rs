@@ -2,6 +2,8 @@ use crate::app::game::core::stellar_system::production::Production;
 use crate::app::utils::delta_time::DeltaTime;
 
 pub trait Productive {
+    fn get_id(&self) -> i32;
+
     fn get_production(&self) -> &Production;
 
     fn current_product(&mut self) -> &mut f32;
@@ -14,6 +16,12 @@ pub trait Productive {
             return true;
         }
         false
+    }
+
+    fn can_produce(&mut self, cost: u8) -> bool {
+        let current = self.current_product();
+        let cost_f32 = cost as f32;
+        *current >= cost_f32
     }
 
     fn increment_production(&mut self, delta: DeltaTime) {

@@ -94,7 +94,7 @@ pub extern "C" fn ice_sandbox_start_battle(context: &mut AppContext) -> FFIOutco
     let logger = LoggerRef::new(&context.logger);
     if let Some(GameVariant::Sandbox(p)) = &mut context.game.variant {
         let result = guard.wrap(|| {
-            p.start_battle(logger)
+            p.start_battle(&logger)
         });
         result.outcome
     } else {
@@ -114,11 +114,11 @@ pub struct Sandbox {
 impl Sandbox {
     pub fn add_warpgate(&mut self, faction: Faction) -> Result<(), String> {
         let position = WarpGate::generate_position(&mut self.random, &self.stellar_system_parameters);
-        let warp_gate = WarpGate::new(position, faction);
+        let warp_gate = WarpGate::new(position, faction, &mut self.uniqueness_registry);
         self.warpgates.add(warp_gate)
     }
 
-    pub fn start_battle(&mut self, logger_ref: LoggerRef) -> Result<(), String> {
+    pub fn start_battle(&mut self, logger: &LoggerRef) -> Result<(), String> {
         if self.current_battle.is_some() {
             return Err("Battle is already active".to_string());
         }
@@ -127,7 +127,7 @@ impl Sandbox {
             &mut self.random,
             self.stellar_system_parameters.clone(),
             &mut self.uniqueness_registry,
-            logger_ref,
+            logger,
         );
 
         self.current_battle = Some(Battle::new(
@@ -135,6 +135,7 @@ impl Sandbox {
             stellar_system_info,
             Faction::Red,
             self.warpgates.clone(),
+            logger
         ));
 
         Ok(())

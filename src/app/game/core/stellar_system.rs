@@ -1,5 +1,5 @@
 pub mod sun;
-pub mod planet;
+pub mod planet_info;
 pub mod production;
 pub mod spaceport;
 pub mod planet_size;
@@ -8,7 +8,7 @@ pub mod orbit;
 use interoptopus::{ffi_surrogates, ffi_type};
 use glam::Vec3;
 use crate::app::game::core::stellar_system::orbit::Orbit;
-use crate::app::game::core::stellar_system::planet::PlanetInfo;
+use crate::app::game::core::stellar_system::planet_info::PlanetInfo;
 use crate::app::game::core::stellar_system::planet_size::PlanetSize;
 use crate::app::game::core::stellar_system::sun::Sun;
 use crate::app::game::core::uniqueness_registry::UniquenessRegistry;
@@ -35,15 +35,15 @@ pub struct StellarSystemInfo {
 
 
 impl StellarSystemInfo {
-    pub fn new(random: &mut Random, parameters: StellarSystemParameters, uniqueness_registry: &mut UniquenessRegistry, logger_ref: LoggerRef) -> Self {
+    pub fn new(random: &mut Random, parameters: StellarSystemParameters, uniqueness_registry: &mut UniquenessRegistry, logger: &LoggerRef) -> Self {
         let id = uniqueness_registry.next_stellar_system_id();
         let sun = Sun::new(random, &parameters);
-        let planets = Self::gen_planets(random, &parameters, uniqueness_registry, logger_ref);
+        let planets = Self::gen_planets(random, &parameters, uniqueness_registry, logger);
 
         Self { id, sun, parameters, planets }
     }
 
-    fn gen_planets(random: &mut Random, parameters: &StellarSystemParameters, uniqueness_registry: &mut UniquenessRegistry, logger_ref: LoggerRef) -> StructVec5<PlanetInfo> {
+    fn gen_planets(random: &mut Random, parameters: &StellarSystemParameters, uniqueness_registry: &mut UniquenessRegistry, logger: &LoggerRef) -> StructVec5<PlanetInfo> {
         let mut result = StructVec5::default();
 
         let planets_count = random.range_inclusive(parameters.min_planets..=parameters.max_planets);
@@ -59,7 +59,7 @@ impl StellarSystemInfo {
             let planet = PlanetInfo::new(id, orbit, size);
 
             if let Err(err) = result.add(planet) {
-                trace!(logger_ref, format!("Can't add planet on t={t}: {err}"));
+                trace!(logger, format!("Can't add planet on t={t}: {err}"));
                 break;
             }
         }
@@ -121,7 +121,7 @@ mod tests {
     use glam::Vec3;
     use crate::app::game::core::stellar_system::{StellarSystemId, StellarSystemInfo, StellarSystemParameters};
     use crate::app::game::core::stellar_system::orbit::Orbit;
-    use crate::app::game::core::stellar_system::planet::{PlanetId, PlanetInfo};
+    use crate::app::game::core::stellar_system::planet_info::{PlanetId, PlanetInfo};
     use crate::app::game::core::stellar_system::planet_size::PlanetSize;
     use crate::app::game::core::stellar_system::sun::Sun;
     use crate::app::utils::struct_vec::StructVec5;

@@ -280,7 +280,7 @@ pub extern "C" fn ice_spawn_spaceship(
                     None => Err(format!("Unable to create route {route_builder_id} for {route_builder_source:?} is none").to_string()),
                     Some(route) => {
                         let battle_ctx = ctx.battle_context.as_mut().expect("No battle context 0_o");
-                        battle_ctx.spawn_spaceship(owner, spawner_id, route, SpaceshipMark::Viper); // todo: support different spaceships (specify on route start)
+                        battle_ctx.spawn_spaceship(owner, spawner_id, route, SpaceshipMark::Viper); // todo: support different spaceship_info (specify on route start)
                         Ok(())
                     }
                 }

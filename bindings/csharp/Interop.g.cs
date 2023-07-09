@@ -44,6 +44,18 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_get_vm")]
         public static extern FFIResultBattleViewModel ice_battle_get_vm(IntPtr context);
 
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_get_vm")]
+        public static extern FFIResultFleetViewModel ice_battle_fleet_get_vm(IntPtr context, Faction faction);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_spawn_begin")]
+        public static extern FFIResultSpawnInfo ice_battle_fleet_spawn_begin(IntPtr context, Faction faction, RouteBuildersSource builder_source, int spawner_id, SpaceshipMark mark);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_spawn_add_waypoint")]
+        public static extern FFIOutcome ice_battle_fleet_spawn_add_waypoint(IntPtr context, SpawnInfo info, ref Vector3 waypoint);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_spawn_finish")]
+        public static extern FFIOutcome ice_battle_fleet_spawn_finish(IntPtr context, SpawnInfo info, int finish_id);
+
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_start_sandbox")]
         public static extern FFIOutcome ice_start_sandbox(IntPtr context);
 
@@ -97,12 +109,27 @@ namespace AK.Scripts.Core.Native
         Jupiter = 5,
     }
 
+    public enum RouteBuildersSource
+    {
+        LeftHand = 0,
+        RightHand = 1,
+        Ai = 2,
+    }
+
+    public enum SpaceshipMark
+    {
+        Viper = 0,
+    }
+
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public partial struct BattleSettings
     {
         public ulong seed;
         public ushort day_of_year;
+        public bool player_fleet_enabled;
+        public bool enemy_fleet_enabled;
+        public bool ally_fleet_enabled;
     }
 
     [Serializable]
@@ -110,6 +137,7 @@ namespace AK.Scripts.Core.Native
     public partial struct BattleViewModel
     {
         public IntPtr stellar_system;
+        public StructVec5Faction fleets;
     }
 
     [Serializable]
@@ -130,10 +158,42 @@ namespace AK.Scripts.Core.Native
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFIResultFleetViewModel
+    {
+        public FleetViewModel value;
+        public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFIResultSpawnInfo
+    {
+        public SpawnInfo value;
+        public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public partial struct FFIResultStellarSystemParameters
     {
         public StellarSystemParameters value;
         public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFITranslation
+    {
+        public Vector3 position;
+        public Quaternion rotation;
+        public float scale;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct FleetViewModel
+    {
+        public SliceSpaceshipViewModel spaceships;
     }
 
     [Serializable]
@@ -193,6 +253,27 @@ namespace AK.Scripts.Core.Native
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    public partial struct SpaceshipViewModel
+    {
+        public ulong id;
+        public FFITranslation translation;
+        public Faction faction;
+        public SpaceshipMark mark;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct SpawnInfo
+    {
+        public Faction faction;
+        public RouteBuildersSource builder_source;
+        public int spawner_id;
+        public int builder_id;
+        public SpaceshipMark spaceship_mark;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public partial struct StellarSystem
     {
         public StellarSystemInfo info;
@@ -228,6 +309,18 @@ namespace AK.Scripts.Core.Native
         public float sun_max_radius;
         public int min_planets;
         public int max_planets;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct StructVec5Faction
+    {
+        Faction items0;
+        Faction items1;
+        Faction items2;
+        Faction items3;
+        Faction items4;
+        byte count;
     }
 
     [Serializable]
@@ -278,12 +371,79 @@ namespace AK.Scripts.Core.Native
     [StructLayout(LayoutKind.Sequential)]
     public partial struct WarpGate
     {
+        public WarpgateId id;
         public Vector3 position;
         public Faction faction;
         public Production production;
         public float current_product;
         public Spaceport spaceport;
     }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct WarpgateId
+    {
+        public int x0;
+    }
+
+    ///A pointer to an array of data someone else owns which may not be modified.
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct SliceSpaceshipViewModel
+    {
+        ///Pointer to start of immutable data.
+        IntPtr data;
+        ///Number of elements.
+        ulong len;
+    }
+
+    public partial struct SliceSpaceshipViewModel : IEnumerable<SpaceshipViewModel>
+    {
+        public SliceSpaceshipViewModel(GCHandle handle, ulong count)
+        {
+            this.data = handle.AddrOfPinnedObject();
+            this.len = count;
+        }
+        public SliceSpaceshipViewModel(IntPtr handle, ulong count)
+        {
+            this.data = handle;
+            this.len = count;
+        }
+        public SpaceshipViewModel this[int i]
+        {
+            get
+            {
+                if (i >= Count) throw new IndexOutOfRangeException();
+                var size = Marshal.SizeOf(typeof(SpaceshipViewModel));
+                var ptr = new IntPtr(data.ToInt64() + i * size);
+                return Marshal.PtrToStructure<SpaceshipViewModel>(ptr);
+            }
+        }
+        public SpaceshipViewModel[] Copied
+        {
+            get
+            {
+                var rval = new SpaceshipViewModel[len];
+                for (var i = 0; i < (int) len; i++) {
+                    rval[i] = this[i];
+                }
+                return rval;
+            }
+        }
+        public int Count => (int) len;
+        public IEnumerator<SpaceshipViewModel> GetEnumerator()
+        {
+            for (var i = 0; i < (int)len; ++i)
+            {
+                yield return this[i];
+            }
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+    }
+
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate byte FFILog(string log);

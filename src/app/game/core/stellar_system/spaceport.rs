@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use interoptopus::ffi_type;
 use crate::app::game::core::stellar_system::planet_size::PlanetSize;
 
@@ -6,7 +7,7 @@ use crate::app::game::core::stellar_system::planet_size::PlanetSize;
 #[derive(Clone)]
 pub struct Spaceport {
     pub orbit_radius: f32,
-    pub surface_radius: f32
+    pub surface_radius: f32,
 }
 
 impl Spaceport {
@@ -14,7 +15,13 @@ impl Spaceport {
         let ratio = size.get_ratio();
         Self {
             orbit_radius: 0.1 * ratio,
-            surface_radius: 0.031 * ratio
+            surface_radius: 0.031 * ratio,
         }
+    }
+}
+
+impl Display for Spaceport {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Orbit {}, Surface {}", self.orbit_radius, self.surface_radius)
     }
 }

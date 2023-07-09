@@ -1,4 +1,5 @@
 use std::mem::MaybeUninit;
+use glam::Quat;
 use interoptopus::{callback, ffi_type};
 use interoptopus::patterns::string::AsciiPointer;
 use crate::app::utils::zero;
@@ -64,3 +65,24 @@ impl<T> FFIResult<T> {
     }
 }
 
+#[ffi_type(name = "Quaternion", namespace = "UnityEngine")]
+#[repr(C)]
+#[derive(Clone)]
+pub struct FFIQuat{
+    x: f32,
+    y: f32,
+    z: f32,
+    w: f32
+}
+
+impl From<Quat> for FFIQuat {
+    fn from(value: Quat) -> Self {
+        // glam::Quat is not repr(C) so we can't use bytes as is
+        Self {
+            x: value.x,
+            y: value.y,
+            z: value.z,
+            w: value.w
+        }
+    }
+}
