@@ -1,4 +1,5 @@
 use interoptopus::ffi_type;
+use interoptopus::patterns::primitives::FFIBool;
 
 #[ffi_type]
 #[repr(C)]
@@ -6,9 +7,9 @@ use interoptopus::ffi_type;
 pub struct BattleSettings {
     pub seed: u64,
     pub day_of_year: u16,
-    pub player_fleet_enabled: bool,
-    pub enemy_fleet_enabled: bool,
-    pub ally_fleet_enabled: bool,
+    pub player_fleet_enabled: FFIBool,
+    pub enemy_fleet_enabled: FFIBool,
+    pub ally_fleet_enabled: FFIBool,
 }
 
 impl Default for BattleSettings {
@@ -16,9 +17,9 @@ impl Default for BattleSettings {
         Self {
             seed: 42,
             day_of_year: 0,
-            player_fleet_enabled: false,
-            enemy_fleet_enabled: true,
-            ally_fleet_enabled: true
+            player_fleet_enabled: FFIBool::FALSE,
+            enemy_fleet_enabled: FFIBool::TRUE,
+            ally_fleet_enabled: FFIBool::TRUE,
         }
     }
 }

@@ -1,5 +1,6 @@
 use interoptopus::{ffi_surrogates, ffi_type};
 use glam::Vec3;
+use interoptopus::patterns::primitives::FFIBool;
 use crate::app::game::battle::traits::productive::Productive;
 use crate::app::game::battle::traits::{AstronomicalBody, Spawner};
 use crate::app::game::core::faction::Faction;
@@ -18,7 +19,7 @@ pub struct Planet {
     pub position: Vec3,
     pub faction: Faction,
     pub current_product: f32,
-    pub under_siege: bool,
+    pub under_siege: FFIBool,
 }
 
 impl Planet {
@@ -28,12 +29,12 @@ impl Planet {
             position,
             faction,
             current_product: 0.0,
-            under_siege: false,
+            under_siege: FFIBool::FALSE,
         }
     }
 
     pub(crate) fn update(&mut self, delta: DeltaTime, _logger: &LoggerRef) {
-        if !self.under_siege {
+        if self.under_siege == FFIBool::FALSE {
             self.increment_production(delta);
         }
     }

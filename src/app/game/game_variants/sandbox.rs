@@ -135,7 +135,7 @@ impl Sandbox {
             stellar_system_info,
             Faction::Red,
             self.warpgates.clone(),
-            logger
+            logger,
         ));
 
         Ok(())

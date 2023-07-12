@@ -36,7 +36,7 @@ namespace AK.Scripts.Core.Native
         public static extern FFIOutcome ice_subscribe_logs(IntPtr context, FFILog log_delegate);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_toggle_trace")]
-        public static extern FFIOutcome ice_toggle_trace(IntPtr context, bool enabled);
+        public static extern FFIOutcome ice_toggle_trace(IntPtr context, Bool enabled);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_update")]
         public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time);
@@ -127,9 +127,9 @@ namespace AK.Scripts.Core.Native
     {
         public ulong seed;
         public ushort day_of_year;
-        public bool player_fleet_enabled;
-        public bool enemy_fleet_enabled;
-        public bool ally_fleet_enabled;
+        public Bool player_fleet_enabled;
+        public Bool enemy_fleet_enabled;
+        public Bool ally_fleet_enabled;
     }
 
     [Serializable]
@@ -214,7 +214,7 @@ namespace AK.Scripts.Core.Native
         public Vector3 position;
         public Faction faction;
         public float current_product;
-        public bool under_siege;
+        public Bool under_siege;
     }
 
     [Serializable]
@@ -442,6 +442,25 @@ namespace AK.Scripts.Core.Native
         {
             return this.GetEnumerator();
         }
+    }
+
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct Bool
+    {
+        byte value;
+    }
+
+    public partial struct Bool
+    {
+        public static readonly Bool True = new Bool { value =  1 };
+        public static readonly Bool False = new Bool { value =  0 };
+        public Bool(bool b)
+        {
+            value = (byte) (b ? 1 : 0);
+        }
+        public bool Is => value == 1;
     }
 
 

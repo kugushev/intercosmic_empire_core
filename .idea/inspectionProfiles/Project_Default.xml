@@ -1,0 +1,25 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="CustomRegExpInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myConfigurations">
+        <list>
+          <RegExpInspectionConfiguration>
+            <option name="name" value="bool in FFI" />
+            <option name="uuid" value="f236c706-59a4-3cc4-8d2d-e66ed22409dc" />
+            <option name="patterns">
+              <list>
+                <InspectionPattern>
+                  <option name="regExp" value="\#\[ffi_type\]([\s\S]*?)\{([\s\S]*?)\: bool([\s\S]*?)\}" />
+                  <option name="_fileType" value="Rust" />
+                  <option name="searchContext" value="ANY" />
+                </InspectionPattern>
+              </list>
+            </option>
+          </RegExpInspectionConfiguration>
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="f236c706-59a4-3cc4-8d2d-e66ed22409dc" enabled="true" level="WARNING" enabled_by_default="true" />
+  </profile>
+</component>

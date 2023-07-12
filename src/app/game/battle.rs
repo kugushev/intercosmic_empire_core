@@ -5,6 +5,7 @@ pub mod services;
 
 use std::collections::HashMap;
 use interoptopus::ffi_function;
+use interoptopus::patterns::primitives::FFIBool;
 use crate::app::AppContext;
 use crate::app::game::battle::entities::fleet::Fleet;
 use crate::app::game::battle::entities::stellar_system::StellarSystem;
@@ -52,15 +53,15 @@ pub struct Battle {
 impl Battle {
     pub fn new(settings: BattleSettings, stellar_system_info: StellarSystemInfo, stellar_system_faction: Faction, warpgates: StructVec5<WarpGate>, logger: &LoggerRef) -> Self {
         let mut fleets = HashMap::new();
-        if settings.player_fleet_enabled {
+        if settings.player_fleet_enabled == FFIBool::TRUE {
             fleets.insert(Faction::Green, Fleet::new(Faction::Green));
             trace!(logger, "Green fleet added")
         }
-        if settings.enemy_fleet_enabled {
+        if settings.enemy_fleet_enabled == FFIBool::TRUE {
             fleets.insert(Faction::Red, Fleet::new(Faction::Red));
             trace!(logger, "Red fleet added")
         }
-        if settings.ally_fleet_enabled {
+        if settings.ally_fleet_enabled == FFIBool::TRUE {
             fleets.insert(Faction::Blue, Fleet::new(Faction::Blue));
             trace!(logger, "Blue fleet added")
         }

@@ -3,6 +3,7 @@ use std::ffi::CString;
 use std::rc::{Rc, Weak};
 use interoptopus::patterns::string::AsciiPointer;
 use interoptopus::ffi_function;
+use interoptopus::patterns::primitives::FFIBool;
 use crate::app::AppContext;
 use crate::ffi::utils::{FFILog, FFIOutcome};
 
@@ -16,9 +17,9 @@ pub extern "C" fn ice_subscribe_logs(context: &mut AppContext, log_delegate: FFI
 
 #[ffi_function]
 #[no_mangle]
-pub extern "C" fn ice_toggle_trace(context: &mut AppContext, enabled: bool) -> FFIOutcome {
+pub extern "C" fn ice_toggle_trace(context: &mut AppContext, enabled: FFIBool) -> FFIOutcome {
     let mut logger = context.logger.borrow_mut();
-    logger.trace_enabled = enabled;
+    logger.trace_enabled = enabled.into();
     FFIOutcome::Ok
 }
 

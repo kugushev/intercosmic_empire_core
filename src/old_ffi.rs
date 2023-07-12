@@ -15,6 +15,7 @@ use interoptopus::patterns::slice::FFISlice;
 use interoptopus::patterns::string::AsciiPointer;
 use interoptopus::{ffi_function, ffi_surrogates};
 use std::ptr::null_mut;
+use interoptopus::patterns::primitives::FFIBool;
 use crate::old::battle::models::route::RouteBuilder;
 use crate::old::core::models::faction::Faction;
 use crate::old::core::models::spaceships::spaceship_mark::SpaceshipMark;
@@ -93,9 +94,9 @@ pub extern "C" fn ice_subscribe_logs_old(context: &mut GameContext, log_delegate
 
 #[ffi_function]
 #[no_mangle]
-pub extern "C" fn ice_toggle_trace_old(context: &mut GameContext, enabled: bool) -> FFIOutcome {
+pub extern "C" fn ice_toggle_trace_old(context: &mut GameContext, enabled: FFIBool) -> FFIOutcome {
     let mut logger = context.logger.borrow_mut();
-    logger.trace_enabled = enabled;
+    logger.trace_enabled = enabled.into();
     FFIOutcome::Ok
 }
 
