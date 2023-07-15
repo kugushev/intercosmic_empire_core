@@ -41,7 +41,7 @@ fn seek_to_waypoint(translation: &mut Mut<Translation>, waypoint: Vec3,
     translation.position += steering.velocity * delta_time;
 
     if steering.velocity.length() != 0.0 {
-        translation.rotation = Quat::from_axis_angle(steering.velocity, 0.0);
+        translation.rotation = Quat::from_scaled_axis(steering.velocity);
     }
 }
 

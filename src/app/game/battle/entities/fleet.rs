@@ -91,15 +91,7 @@ impl Fleet {
 
         let spaceship = Spaceship::new(self.spaceships_counter, mark, route, self.faction);
 
-        // find suitable slot
-        let mut found_slot: Option<(&mut Option<Spaceship>, &mut SpaceshipViewModel)> = None;
-        for (slot, slot_vm) in self.zip_spaceships() {
-            if slot.is_some() {
-                continue;
-            }
-            found_slot = Some((slot, slot_vm));
-            break;
-        };
+        let found_slot = self.find_slot();
 
         if let Some((slot, slot_vm)) = found_slot {
             *slot_vm = spaceship.get_vm();
@@ -110,6 +102,20 @@ impl Fleet {
         }
 
         Ok(())
+    }
+
+    fn find_slot(&mut self) -> Option<(&mut Option<Spaceship>, &mut SpaceshipViewModel)> {
+        let mut found_slot: Option<(&mut Option<Spaceship>, &mut SpaceshipViewModel)> = None;
+        for (slot, slot_vm) in self.zip_spaceships() {
+            if let Some(spaceship_in_slot) = &slot {
+                if !spaceship_in_slot.disposed() {
+                    continue;
+                }
+            }
+            found_slot = Some((slot, slot_vm));
+            break;
+        };
+        found_slot
     }
 
     fn zip_spaceships(&mut self) -> Zip<IterMut<Option<Spaceship>>, IterMut<SpaceshipViewModel>> {

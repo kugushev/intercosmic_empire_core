@@ -80,6 +80,9 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_start_battle")]
         public static extern FFIOutcome ice_sandbox_start_battle(IntPtr context);
 
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_test_quat_look_rotation")]
+        public static extern Quaternion ice_test_quat_look_rotation(Vector3 forward, Vector3 up);
+
     }
 
     public enum FFIOutcome
@@ -247,8 +250,8 @@ namespace AK.Scripts.Core.Native
     [StructLayout(LayoutKind.Sequential)]
     public partial struct Spaceport
     {
-        public float orbit_radius;
-        public float surface_radius;
+        float orbit_radius;
+        float surface_radius;
     }
 
     [Serializable]

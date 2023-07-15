@@ -1,14 +1,29 @@
 use std::collections::HashMap;
+use derive_getters::Getters;
 use glam::Vec3;
 use interoptopus::ffi_type;
 use crate::app::game::core::stellar_system::spaceport::Spaceport;
 
+#[derive(Getters)]
 pub struct Route {
-    pub waypoints: Vec<Vec3>,
-    pub start_position: Vec3,
-    pub start_spaceport: Spaceport,
-    pub finish_position: Vec3,
-    pub finish_spaceport: Spaceport,
+    waypoints: Vec<Vec3>,
+    start_position: Vec3,
+    start_spaceport: Spaceport,
+    finish_position: Vec3,
+    finish_spaceport: Spaceport,
+}
+
+impl Route {
+    pub fn new(waypoints: Vec<Vec3>, start_position: Vec3, start_spaceport: Spaceport, finish_position: Vec3, finish_spaceport: Spaceport) -> Self {
+        assert!(waypoints.len() > 0, "Waypoints shouldn't be empty");
+        Self {
+            waypoints,
+            start_position,
+            start_spaceport,
+            finish_position,
+            finish_spaceport,
+        }
+    }
 }
 
 pub struct RouteBuilder {
@@ -86,7 +101,7 @@ impl RouteBuilder {
             return Err(format!("Unexpected builder id {builder_id}, expected {}", self.id));
         }
 
-        if self.start_position.distance(waypoint) >= self.start_spaceport.orbit_radius {
+        if self.start_position.distance(waypoint) >= *self.start_spaceport.orbit_radius() {
             self.raw_waypoints.push(waypoint)
         }
         Ok(())
@@ -98,6 +113,10 @@ impl RouteBuilder {
         }
 
         let success = self.trim_route_tail(finish_position, finish_spaceport.clone());
+
+        if self.raw_waypoints.len() == 0 {
+            return Err("Empty waypoints".to_string());
+        }
 
         if success {
             Ok(Route {
@@ -119,7 +138,7 @@ impl RouteBuilder {
     fn trim_route_tail(&mut self, finish_position: Vec3, finish_spaceport: Spaceport) -> bool {
         let mut trim_count = 0;
         for raw_waypoint in self.raw_waypoints.iter().rev() {
-            if finish_position.distance(*raw_waypoint) >= finish_spaceport.orbit_radius {
+            if finish_position.distance(*raw_waypoint) >= *finish_spaceport.orbit_radius() {
                 break;
             }
             trim_count += 1;

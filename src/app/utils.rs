@@ -7,6 +7,7 @@ pub mod random;
 pub mod delta_time;
 pub mod translation;
 pub mod repr_test;
+pub mod quat_extra;
 
 pub fn zero<T>() -> T {
     unsafe { MaybeUninit::<T>::zeroed().assume_init() }

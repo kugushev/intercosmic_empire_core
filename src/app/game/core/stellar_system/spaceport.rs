@@ -1,13 +1,14 @@
 use std::fmt::{Display, Formatter};
+use derive_getters::Getters;
 use interoptopus::ffi_type;
 use crate::app::game::core::stellar_system::planet_size::PlanetSize;
 
 #[ffi_type]
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, Getters)]
 pub struct Spaceport {
-    pub orbit_radius: f32,
-    pub surface_radius: f32,
+    orbit_radius: f32,
+    surface_radius: f32,
 }
 
 impl Spaceport {

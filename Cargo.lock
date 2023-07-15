@@ -312,6 +312,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "derive-getters"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a2c35ab6e03642397cdda1dd58abbc05d418aef8e36297f336d5aba060fe8df"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "downcast-rs"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -456,6 +467,7 @@ dependencies = [
  "backtrace",
  "base64",
  "bevy_ecs",
+ "derive-getters",
  "glam",
  "interoptopus",
  "interoptopus_backend_csharp",
