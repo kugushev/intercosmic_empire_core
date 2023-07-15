@@ -1,10 +1,5 @@
 use interoptopus::{function, Inventory, InventoryBuilder};
 
-pub mod old_ffi;
-pub mod steering;
-pub mod old_ffi_ext;
-pub mod old;
-pub mod old_ffi_models;
 pub mod ffi;
 pub mod app;
 

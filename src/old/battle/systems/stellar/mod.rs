@@ -1,1 +1,0 @@
-pub mod stellar_production_cycle;
