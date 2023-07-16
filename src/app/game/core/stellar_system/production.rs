@@ -17,6 +17,14 @@ impl Production {
         }
     }
 
+    pub fn warpgate() -> Self {
+        // default value, should be the summ of the original planets power
+        Self {
+            amount_per_second: 5.0,
+            max_product: 100.0
+        }
+    }
+
     fn get_amount_per_second(size: PlanetSize) -> f32 {
         match size {
             PlanetSize::Mercury => { 0.3 }

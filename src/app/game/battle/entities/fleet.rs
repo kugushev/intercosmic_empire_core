@@ -9,7 +9,6 @@ use crate::app::game::battle::entities::fleet::fleet_spawn::SpawnInfo;
 use crate::app::game::battle::entities::route::{Route, RouteBuilders, RouteBuildersSource};
 use crate::app::game::battle::entities::spaceship::{EMPTY_SPACESHIP_VM, Spaceship, SpaceshipViewModel};
 use crate::app::game::battle::entities::stellar_system::StellarSystem;
-use crate::app::game::battle::traits::Spawner;
 use crate::app::game::core::faction::Faction;
 use crate::app::game::core::spaceship_info::SpaceshipMark;
 use crate::app::game::core::spaceship_info::spaceship_parameters::SpaceshipParameters;
@@ -38,10 +37,10 @@ impl Fleet {
         }
     }
 
-    pub fn update(&mut self, delta: DeltaTime, logger: &LoggerRef) {
+    pub fn update(&mut self, stellar_system: &mut StellarSystem, delta: DeltaTime, logger: &LoggerRef) {
         for (slot, vm) in self.zip_spaceships() {
             if let Some(spaceship) = slot {
-                spaceship.update(delta, logger);
+                spaceship.update(stellar_system, delta, logger);
 
                 if spaceship.disposed() {
                     *slot = None;
@@ -53,9 +52,13 @@ impl Fleet {
         }
     }
 
-    pub fn spawn_prepare(&mut self, spawner_id: i32, stellar_system: &mut StellarSystem, builder_source: RouteBuildersSource, spaceship_mark: SpaceshipMark) -> Result<SpawnInfo, String> {
+    pub fn spawn_prepare(&mut self, spawner_id: i32, stellar_system: &mut StellarSystem, builder_source: RouteBuildersSource, spaceship_mark: SpaceshipMark, faction: Faction) -> Result<SpawnInfo, String> {
         let builders = &mut self.route_builders;
-        let spawner = find_spawner(spawner_id, stellar_system)?;
+        let spawner = stellar_system.find_spawner(spawner_id, false)?;
+
+        if spawner.get_belonging() != faction {
+            return Err(format!("Unexpected faction {faction:?}, spawner faction is {:?}", spawner.get_belonging()));
+        }
 
         let builder_id = builders.new_builders(builder_source,
                                                spawner.get_position(),
@@ -71,10 +74,13 @@ impl Fleet {
 
     pub fn spawn_finish(&mut self, info: SpawnInfo, finish_id: i32, stellar_system: &mut StellarSystem) -> Result<(), String> {
         let builders = &mut self.route_builders;
-        let finish = find_spawner(finish_id, stellar_system)?;
-        let route = builders.finish(info.builder_source, info.builder_id, finish.get_position(), finish.get_spaceport())?;
+        let finish = stellar_system.find_spawner(finish_id, true)?;
+        let route = builders.finish(info.builder_source, info.builder_id,
+                                    finish.get_position(),
+                                    finish.get_spaceport(),
+                                    finish_id)?;
 
-        let spawner = find_spawner(info.spawner_id, stellar_system)?;
+        let spawner = stellar_system.find_spawner(info.spawner_id, false)?;
         let spaceship_parameters = SpaceshipParameters::get(info.spaceship_mark);
         if !spawner.try_produce(spaceship_parameters.cost) {
             return Err(format!("Can't produce spaceship {}, current {}", spaceship_parameters.cost, spawner.current_product()));
@@ -121,26 +127,6 @@ impl Fleet {
     fn zip_spaceships(&mut self) -> Zip<IterMut<Option<Spaceship>>, IterMut<SpaceshipViewModel>> {
         self.spaceships.iter_mut().zip(self.spaceships_vm.iter_mut())
     }
-}
-
-fn find_spawner(spawner_id: i32, stellar_system: &mut StellarSystem) -> Result<&mut dyn Spawner, String> {
-    // try find warpgate
-    let found = stellar_system.warpgates.iter_mut()
-        .find(|x| { x.id.0 == spawner_id });
-
-    if let Some(warpgate) = found {
-        return Ok(warpgate);
-    }
-
-    // try find planet
-    let found = stellar_system.planets.iter_mut()
-        .find(|x| { x.info.id.0 == spawner_id });
-
-    if let Some(planet) = found {
-        return Ok(planet);
-    }
-
-    Err(format!("Spawner {spawner_id} not found"))
 }
 
 

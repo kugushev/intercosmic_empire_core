@@ -19,6 +19,10 @@ impl Spaceport {
             surface_radius: 0.031 * ratio,
         }
     }
+
+    pub fn warpgate() -> Self {
+        Self::new(PlanetSize::Mercury)
+    }
 }
 
 impl Display for Spaceport {

@@ -85,7 +85,7 @@ impl Battle {
     pub fn update(&mut self, delta: DeltaTime, logger: &LoggerRef) {
         self.stellar_system.update(delta, logger);
         for (_, fleet) in self.fleets.iter_mut() {
-            fleet.update(delta, logger);
+            fleet.update(&mut self.stellar_system, delta, logger);
         }
     }
 

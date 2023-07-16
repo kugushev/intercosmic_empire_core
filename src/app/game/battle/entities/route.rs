@@ -11,18 +11,13 @@ pub struct Route {
     start_spaceport: Spaceport,
     finish_position: Vec3,
     finish_spaceport: Spaceport,
+    finish_id: i32,
 }
 
 impl Route {
-    pub fn new(waypoints: Vec<Vec3>, start_position: Vec3, start_spaceport: Spaceport, finish_position: Vec3, finish_spaceport: Spaceport) -> Self {
+    pub fn new(waypoints: Vec<Vec3>, start_position: Vec3, start_spaceport: Spaceport, finish_position: Vec3, finish_spaceport: Spaceport, finish_id: i32) -> Self {
         assert!(waypoints.len() > 0, "Waypoints shouldn't be empty");
-        Self {
-            waypoints,
-            start_position,
-            start_spaceport,
-            finish_position,
-            finish_spaceport,
-        }
+        Self { waypoints, start_position, start_spaceport, finish_position, finish_spaceport, finish_id }
     }
 }
 
@@ -66,12 +61,13 @@ impl RouteBuilders {
     }
 
     pub fn finish(&mut self, builder_source: RouteBuildersSource, builder_id: i32,
-                  finish_position: Vec3, finish_spaceport: Spaceport) -> Result<Route, String> {
+                  finish_position: Vec3, finish_spaceport: Spaceport,
+                  finish_id: i32) -> Result<Route, String> {
         let current = self.slots.remove(&builder_source);
         match current {
             None => Err(format!("Builder {builder_id} for {builder_source:?} not found").to_string()),
             Some(builder) => {
-                builder.build(finish_position, finish_spaceport, builder_id)
+                builder.build(finish_id, finish_position, finish_spaceport, builder_id)
             }
         }
     }
@@ -107,7 +103,7 @@ impl RouteBuilder {
         Ok(())
     }
 
-    pub fn build(mut self, finish_position: Vec3, finish_spaceport: Spaceport, builder_id: i32) -> Result<Route, String> {
+    pub fn build(mut self, finish_id: i32, finish_position: Vec3, finish_spaceport: Spaceport, builder_id: i32) -> Result<Route, String> {
         if self.id != builder_id {
             return Err(format!("Unexpected builder id {builder_id}, expected {}", self.id));
         }
@@ -119,13 +115,8 @@ impl RouteBuilder {
         }
 
         if success {
-            Ok(Route {
-                waypoints: self.raw_waypoints,
-                start_position: self.start_position,
-                start_spaceport: self.start_spaceport,
-                finish_position,
-                finish_spaceport,
-            })
+            Ok(Route::new(self.raw_waypoints, self.start_position, self.start_spaceport,
+                          finish_position, finish_spaceport, finish_id))
         } else {
             let join = self.raw_waypoints.iter().fold("".to_string(), |mut a, v| {
                 a.push_str(format!("[{}]", v).as_str());

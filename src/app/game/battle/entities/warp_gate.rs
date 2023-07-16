@@ -1,10 +1,9 @@
 use interoptopus::{ffi_surrogates, ffi_type};
 use glam::Vec3;
 use crate::app::game::battle::traits::productive::Productive;
-use crate::app::game::battle::traits::{AstronomicalBody, Spawner};
+use crate::app::game::battle::traits::{AstronomicalBody, Belonging, Spawner};
 use crate::app::game::core::faction::Faction;
 use crate::app::game::core::stellar_system::orbit::Orbit;
-use crate::app::game::core::stellar_system::planet_size::PlanetSize;
 use crate::app::game::core::stellar_system::production::Production;
 use crate::app::game::core::stellar_system::spaceport::Spaceport;
 use crate::app::game::core::stellar_system::StellarSystemParameters;
@@ -34,7 +33,7 @@ pub struct WarpGate {
 
 impl WarpGate {
     pub(crate) fn update(&mut self, delta: DeltaTime, _logger: &LoggerRef) {
-        self.increment_production(delta);
+        self.increment(delta);
     }
 }
 
@@ -44,9 +43,9 @@ impl WarpGate {
             id: uniqueness_registry.next_warpgate_id(),
             position,
             faction,
-            production: Production::new(PlanetSize::Jupiter),
+            production: Production::warpgate(),
             current_product: 0.0,
-            spaceport: Spaceport::new(PlanetSize::Mercury),
+            spaceport: Spaceport::warpgate(),
         }
     }
 
@@ -69,4 +68,12 @@ impl Productive for WarpGate {
 impl AstronomicalBody for WarpGate {
     fn get_position(&self) -> Vec3 { self.position }
     fn get_spaceport(&self) -> Spaceport { self.spaceport.clone() }
+}
+
+impl Belonging for WarpGate {
+    fn get_belonging(&self) -> Faction { self.faction }
+
+    fn set_belonging(&mut self, faction: Faction) {
+        self.faction = faction;
+    }
 }

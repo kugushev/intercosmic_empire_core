@@ -2,7 +2,7 @@ use interoptopus::{ffi_surrogates, ffi_type};
 use glam::Vec3;
 use interoptopus::patterns::primitives::FFIBool;
 use crate::app::game::battle::traits::productive::Productive;
-use crate::app::game::battle::traits::{AstronomicalBody, Spawner};
+use crate::app::game::battle::traits::{AstronomicalBody, Belonging, Spawner};
 use crate::app::game::core::faction::Faction;
 use crate::app::game::core::stellar_system::planet_info::PlanetInfo;
 use crate::app::game::core::stellar_system::production::Production;
@@ -35,7 +35,7 @@ impl Planet {
 
     pub(crate) fn update(&mut self, delta: DeltaTime, _logger: &LoggerRef) {
         if self.under_siege == FFIBool::FALSE {
-            self.increment_production(delta);
+            self.increment(delta);
         }
     }
 }
@@ -53,4 +53,12 @@ impl Productive for Planet {
 impl AstronomicalBody for Planet {
     fn get_position(&self) -> Vec3 { self.position }
     fn get_spaceport(&self) -> Spaceport { self.info.spaceport.clone() }
+}
+
+impl Belonging for Planet {
+    fn get_belonging(&self) -> Faction { self.faction }
+
+    fn set_belonging(&mut self, faction: Faction) {
+        self.faction = faction;
+    }
 }

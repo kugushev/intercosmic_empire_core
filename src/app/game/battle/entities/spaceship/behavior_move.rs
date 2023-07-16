@@ -2,6 +2,7 @@ use glam::Vec3;
 use crate::app::game::battle::entities::spaceship::behavior::Behavior;
 use crate::app::game::battle::entities::spaceship::behavior_arrival::BehaviorArrival;
 use crate::app::game::battle::entities::spaceship::shared_state::SharedState;
+use crate::app::game::battle::entities::stellar_system::StellarSystem;
 use crate::app::game::battle::services::steering_behavior::Steering;
 use crate::app::game::core::spaceship_info::spaceship_parameters::SpaceshipParameters;
 use crate::app::utils::delta_time::DeltaTime;
@@ -38,7 +39,7 @@ impl BehaviorMove {
 }
 
 impl Behavior for BehaviorMove {
-    fn update(&mut self, shared_state: &mut SharedState, delta: DeltaTime, logger: &LoggerRef) -> Option<Box<dyn Behavior>> {
+    fn update(&mut self, shared_state: &mut SharedState, _stellar_system: &mut StellarSystem, delta: DeltaTime, logger: &LoggerRef) -> Option<Box<dyn Behavior>> {
         let all_waypoints_visited = shared_state.target_waypoint >= shared_state.route.waypoints().len();
         if all_waypoints_visited {
             trace!(logger, "Move to Arrival");

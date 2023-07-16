@@ -24,10 +24,31 @@ pub trait Productive {
         *current >= cost_f32
     }
 
-    fn increment_production(&mut self, delta: DeltaTime) {
-        let production = self.get_production().clone();
+    fn increment(&mut self, delta: DeltaTime) {
+        let amount_per_second = self.get_production().amount_per_second;
+        self.increase_product(amount_per_second * delta.seconds(), false)
+    }
+
+    fn increase_product(&mut self, amount: f32, can_overlap: bool) {
+        let max_product = self.get_production().max_product;
+        let current_ref = self.current_product();
+        let current = *current_ref;
+        let max = if current <= max_product { max_product } else { current };
+        let new_product = current + amount;
+        if can_overlap {
+            *current_ref = new_product;
+        } else {
+            *current_ref = new_product.min(max);
+        }
+    }
+
+    fn decrease_product(&mut self, amount: f32) -> f32 {
         let current = self.current_product();
-        let new_product = *current + production.amount_per_second * delta.seconds();
-        *current = new_product.min(production.max_product);
+        *current -= amount;
+        if *current < 0.0 {
+            let overlap = -*current;
+            *current = 0.0;
+            overlap
+        } else { 0.0 }
     }
 }

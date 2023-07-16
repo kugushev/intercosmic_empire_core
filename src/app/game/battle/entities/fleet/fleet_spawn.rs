@@ -21,7 +21,7 @@ pub extern "C" fn ice_battle_fleet_spawn_begin(
     current_battle_exec(context, |b| {
         let stellar_system = &mut b.stellar_system;
         if let Some(fleet) = b.fleets.get_mut(&faction) {
-            fleet.spawn_prepare(spawner_id, stellar_system, builder_source, mark)
+            fleet.spawn_prepare(spawner_id, stellar_system, builder_source, mark, faction)
         } else {
             Err(format!("Fleet not found {faction:?}"))
         }

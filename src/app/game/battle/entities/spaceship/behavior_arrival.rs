@@ -1,7 +1,8 @@
 use glam::{Quat, Vec3};
 use crate::app::game::battle::entities::spaceship::behavior::Behavior;
-use crate::app::game::battle::entities::spaceship::behavior_disposed::BehaviorDisposed;
+use crate::app::game::battle::entities::spaceship::behavior_landed::BehaviorLanded;
 use crate::app::game::battle::entities::spaceship::shared_state::SharedState;
+use crate::app::game::battle::entities::stellar_system::StellarSystem;
 use crate::app::utils::delta_time::DeltaTime;
 use crate::app::utils::interop_logger::LoggerRef;
 use crate::app::utils::quat_extra::{QuatEx, VEC3_DOWN, VEC3_FORWARD};
@@ -32,10 +33,10 @@ impl BehaviorArrival {
 }
 
 impl Behavior for BehaviorArrival {
-    fn update(&mut self, shared_state: &mut SharedState, delta: DeltaTime, logger: &LoggerRef) -> Option<Box<dyn Behavior>> {
+    fn update(&mut self, shared_state: &mut SharedState, _stellar_system: &mut StellarSystem, delta: DeltaTime, logger: &LoggerRef) -> Option<Box<dyn Behavior>> {
         if self.arrival_time > MAX_ARRIVAL_TIME_SECONDS {
-            trace!(logger, "Arrival to Disposed");
-            return Some(Box::new(BehaviorDisposed));
+            trace!(logger, "Arrival to Landed");
+            return Some(Box::new(BehaviorLanded));
         }
 
         let t = self.arrival_time / MAX_ARRIVAL_TIME_SECONDS;

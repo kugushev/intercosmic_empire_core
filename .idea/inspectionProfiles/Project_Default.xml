@@ -20,6 +20,6 @@
         </list>
       </option>
     </inspection_tool>
-    <inspection_tool class="f236c706-59a4-3cc4-8d2d-e66ed22409dc" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="f236c706-59a4-3cc4-8d2d-e66ed22409dc" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>

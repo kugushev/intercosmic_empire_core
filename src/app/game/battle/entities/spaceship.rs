@@ -12,6 +12,7 @@ use crate::app::game::battle::entities::route::Route;
 use crate::app::game::battle::entities::spaceship::behavior::Behavior;
 use crate::app::game::battle::entities::spaceship::behavior_departure::BehaviorDeparture;
 use crate::app::game::battle::entities::spaceship::shared_state::SharedState;
+use crate::app::game::battle::entities::stellar_system::StellarSystem;
 use crate::app::game::core::faction::Faction;
 use crate::app::game::core::spaceship_info::SpaceshipMark;
 use crate::app::utils::delta_time::DeltaTime;
@@ -65,9 +66,9 @@ impl Spaceship {
         }
     }
 
-    pub fn update(&mut self, delta: DeltaTime, logger: &LoggerRef) {
+    pub fn update(&mut self, stellar_system: &mut StellarSystem, delta: DeltaTime, logger: &LoggerRef) {
         let shared_state = &mut self.state;
-        let new_behavior = self.behavior.update(shared_state, delta, logger);
+        let new_behavior = self.behavior.update(shared_state, stellar_system, delta, logger);
         if let Some(behavior) = new_behavior {
             self.behavior = behavior;
         }

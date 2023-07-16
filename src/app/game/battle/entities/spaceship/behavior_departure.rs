@@ -2,6 +2,7 @@ use glam::{Quat, Vec3};
 use crate::app::game::battle::entities::spaceship::behavior::Behavior;
 use crate::app::game::battle::entities::spaceship::behavior_move::BehaviorMove;
 use crate::app::game::battle::entities::spaceship::shared_state::SharedState;
+use crate::app::game::battle::entities::stellar_system::StellarSystem;
 use crate::app::utils::delta_time::DeltaTime;
 use crate::app::utils::interop_logger::LoggerRef;
 use crate::app::utils::quat_extra::{QuatEx, VEC3_DOWN, VEC3_FORWARD, VEC3_UP};
@@ -34,7 +35,7 @@ impl BehaviorDeparture {
 }
 
 impl Behavior for BehaviorDeparture {
-    fn update(&mut self, shared_state: &mut SharedState, delta: DeltaTime, logger: &LoggerRef) -> Option<Box<dyn Behavior>> {
+    fn update(&mut self, shared_state: &mut SharedState, _stellar_system: &mut StellarSystem, delta: DeltaTime, logger: &LoggerRef) -> Option<Box<dyn Behavior>> {
         if self.departure_time > MAX_DEPARTURE_TIME_SECONDS {
             trace!(logger, "Departure to Move");
             return Some(Box::<BehaviorMove>::default());

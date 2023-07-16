@@ -1,6 +1,7 @@
 use interoptopus::ffi_type;
 use crate::app::game::battle::entities::planet::Planet;
 use crate::app::game::battle::entities::warp_gate::WarpGate;
+use crate::app::game::battle::traits::Spawner;
 use crate::app::game::core::faction::Faction;
 use crate::app::game::core::stellar_system::StellarSystemInfo;
 use crate::app::utils::delta_time::DeltaTime;
@@ -31,5 +32,27 @@ impl StellarSystem {
         for warpgate in self.warpgates.iter_mut() {
             warpgate.update(delta, logger);
         }
+    }
+
+    pub fn find_spawner(&mut self, spawner_id: i32, planets_only: bool) -> Result<&mut dyn Spawner, String> {
+        if !planets_only {
+            // try find warpgate
+            let found = self.warpgates.iter_mut()
+                .find(|x| { x.id.0 == spawner_id });
+
+            if let Some(warpgate) = found {
+                return Ok(warpgate);
+            }
+        }
+
+        // try find planet
+        let found = self.planets.iter_mut()
+            .find(|x| { x.info.id.0 == spawner_id });
+
+        if let Some(planet) = found {
+            return Ok(planet);
+        }
+
+        Err(format!("Astronomical Body {spawner_id} not found"))
     }
 }
