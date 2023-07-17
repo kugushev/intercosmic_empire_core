@@ -1,5 +1,6 @@
 use interoptopus::ffi_type;
 use interoptopus::patterns::primitives::FFIBool;
+use crate::app::game::battle::ai_agents::AiAgentType;
 
 #[ffi_type]
 #[repr(C)]
@@ -9,7 +10,9 @@ pub struct BattleSettings {
     pub day_of_year: u16,
     pub player_fleet_enabled: FFIBool,
     pub enemy_fleet_enabled: FFIBool,
+    pub enemy_fleet_ai: AiAgentType,
     pub ally_fleet_enabled: FFIBool,
+    pub ally_fleet_ai: AiAgentType,
 }
 
 impl Default for BattleSettings {
@@ -19,7 +22,9 @@ impl Default for BattleSettings {
             day_of_year: 0,
             player_fleet_enabled: FFIBool::FALSE,
             enemy_fleet_enabled: FFIBool::TRUE,
+            enemy_fleet_ai: AiAgentType::RandomSpawn,
             ally_fleet_enabled: FFIBool::TRUE,
+            ally_fleet_ai: AiAgentType::RandomSpawn
         }
     }
 }

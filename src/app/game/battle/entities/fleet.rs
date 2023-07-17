@@ -1,10 +1,12 @@
 pub mod fleet_view_model;
 pub mod fleet_spawn;
+pub mod deck;
 
 use std::iter::Zip;
 use std::slice::IterMut;
 use crate::app::AppContext;
 use crate::app::game::battle::{current_battle_exec, current_battle_ref};
+use crate::app::game::battle::entities::fleet::deck::Deck;
 use crate::app::game::battle::entities::fleet::fleet_spawn::SpawnInfo;
 use crate::app::game::battle::entities::route::{Route, RouteBuilders, RouteBuildersSource};
 use crate::app::game::battle::entities::spaceship::{EMPTY_SPACESHIP_VM, Spaceship, SpaceshipViewModel};
@@ -24,6 +26,7 @@ pub struct Fleet {
     spaceships: Vec<Option<Spaceship>>,
     spaceships_counter: u64,
     spaceships_vm: Vec<SpaceshipViewModel>,
+    deck: Deck,
 }
 
 impl Fleet {
@@ -34,8 +37,15 @@ impl Fleet {
             spaceships: Vec::new(),
             spaceships_counter: EMPTY_SPACESHIP_VM,
             spaceships_vm: Vec::new(),
+            deck: Deck,
         }
     }
+
+    pub fn get_faction(&self) -> Faction { self.faction }
+
+    pub fn get_deck_mut(&mut self) -> &mut Deck { &mut self.deck }
+
+    pub fn get_route_builders(&mut self) -> &mut RouteBuilders { &mut self.route_builders }
 
     pub fn update(&mut self, stellar_system: &mut StellarSystem, delta: DeltaTime, logger: &LoggerRef) {
         for (slot, vm) in self.zip_spaceships() {
@@ -132,19 +142,13 @@ impl Fleet {
 
 pub fn fleet_exec<T>(context: &mut AppContext, faction: Faction, action: impl FnOnce(&mut Fleet) -> Result<T, String>) -> FFIResult<T> {
     current_battle_exec(context, |b| {
-        if let Some(fleet) = b.fleets.get_mut(&faction) {
-            action(fleet)
-        } else {
-            Err(format!("Fleet not found {faction:?}"))
-        }
+        let fleet = b.fleets.get_fleet_mut(faction)?;
+        action(fleet)
     })
 }
 
 pub fn fleet_ref(game: &GameContext, faction: Faction) -> Result<&Fleet, String> {
     let battle = current_battle_ref(game)?;
-    if let Some(fleet) = battle.fleets.get(&faction) {
-        Ok(fleet)
-    } else {
-        Err(format!("Fleet not found {faction:?}"))
-    }
+    let fleet = battle.fleets.get_fleet_ref(faction)?;
+    Ok(fleet)
 }

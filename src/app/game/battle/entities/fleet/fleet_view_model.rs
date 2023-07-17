@@ -16,8 +16,8 @@ pub extern "C" fn ice_battle_fleet_get_vm(
     let guard = &mut context.guard;
 
     guard.wrap(|| {
-        let battle = fleet_ref(game, faction)?;
-        Ok(battle.into())
+        let fleet = fleet_ref(game, faction)?;
+        Ok(fleet.into())
     })
 }
 

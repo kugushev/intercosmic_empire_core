@@ -2,15 +2,14 @@ mod battle_view_model;
 pub mod entities;
 pub mod traits;
 pub mod services;
+pub mod ai_agents;
 
-use std::collections::HashMap;
 use interoptopus::ffi_function;
-use interoptopus::patterns::primitives::FFIBool;
 use crate::app::AppContext;
-use crate::app::game::battle::entities::fleet::Fleet;
 use crate::app::game::battle::entities::stellar_system::StellarSystem;
 use crate::app::game::battle::entities::warp_gate::WarpGate;
 use crate::app::game::battle::battle_view_model::BattleViewModel;
+use crate::app::game::battle::entities::fleet_set::FleetSet;
 use crate::app::game::core::battle_settings::BattleSettings;
 use crate::app::game::core::faction::Faction;
 use crate::app::game::core::stellar_system::StellarSystemInfo;
@@ -19,7 +18,6 @@ use crate::app::utils::delta_time::DeltaTime;
 use crate::app::utils::interop_logger::LoggerRef;
 use crate::app::utils::struct_vec::StructVec5;
 use crate::ffi::utils::{FFIOutcome, FFIResult};
-use crate::trace;
 
 #[ffi_function]
 #[no_mangle]
@@ -41,35 +39,20 @@ pub extern "C" fn ice_battle_get_vm(context: &mut AppContext) -> FFIResult<Battl
 
     guard.wrap(|| {
         let battle = current_battle_mut(game)?;
-        Ok(BattleViewModel::new(battle))
+        BattleViewModel::new(battle)
     })
 }
 
 pub struct Battle {
     stellar_system: StellarSystem,
-    fleets: HashMap<Faction, Fleet>,
+    fleets: FleetSet,
 }
 
 impl Battle {
     pub fn new(settings: BattleSettings, stellar_system_info: StellarSystemInfo, stellar_system_faction: Faction, warpgates: StructVec5<WarpGate>, logger: &LoggerRef) -> Self {
-        let mut fleets = HashMap::new();
-        if settings.player_fleet_enabled == FFIBool::TRUE {
-            fleets.insert(Faction::Green, Fleet::new(Faction::Green));
-            trace!(logger, "Green fleet added")
-        }
-        if settings.enemy_fleet_enabled == FFIBool::TRUE {
-            fleets.insert(Faction::Red, Fleet::new(Faction::Red));
-            trace!(logger, "Red fleet added")
-        }
-        if settings.ally_fleet_enabled == FFIBool::TRUE {
-            fleets.insert(Faction::Blue, Fleet::new(Faction::Blue));
-            trace!(logger, "Blue fleet added")
-        }
-
-        Self {
-            stellar_system: StellarSystem::new(stellar_system_info, stellar_system_faction, warpgates, settings.day_of_year),
-            fleets,
-        }
+        let stellar_system = StellarSystem::new(stellar_system_info, stellar_system_faction, warpgates, settings.day_of_year);
+        let fleets = FleetSet::new(&settings, logger);
+        Self { stellar_system, fleets }
     }
 
     fn current_ref(game_context: &GameContext) -> Option<&Self> {
@@ -84,9 +67,7 @@ impl Battle {
 
     pub fn update(&mut self, delta: DeltaTime, logger: &LoggerRef) {
         self.stellar_system.update(delta, logger);
-        for (_, fleet) in self.fleets.iter_mut() {
-            fleet.update(&mut self.stellar_system, delta, logger);
-        }
+        self.fleets.update(&mut self.stellar_system, delta, logger);
     }
 
     pub fn close(&mut self) -> Result<(), String> {
@@ -145,7 +126,7 @@ mod tests {
             StellarSystemInfo::default(),
             Faction::Red,
             StructVec5::default(),
-            &LoggerRef::default()
+            &LoggerRef::default(),
         );
 
         assert_current_product(&mut battle, (0.0, 0.0, 0.0));
@@ -170,9 +151,4 @@ mod tests {
             assert_eq!(jupiter, expected.2);
         }
     }
-
-
-    // todo: max production case
-
-    // todo: abandoned planet case
 }

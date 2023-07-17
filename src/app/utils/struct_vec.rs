@@ -75,6 +75,8 @@ impl<T> StructVec5<T> {
         }
     }
 
+    pub fn len(&self) -> u8 { self.count }
+
     pub fn map<V>(&self, mapper: impl Fn(&T) -> V) -> StructVec5<V> {
         match self.count {
             1 => StructVec5::new1(mapper(&self.items[0])),
@@ -97,6 +99,13 @@ impl<T> StructVec5<T> {
 
     pub fn iter_mut(&mut self) -> StructVec5IterMut<T> {
         StructVec5IterMut {
+            vec: self,
+            current: 0,
+        }
+    }
+
+    pub fn iter_ref(&mut self) -> StructVec5IterRef<T> {
+        StructVec5IterRef {
             vec: self,
             current: 0,
         }
@@ -130,6 +139,26 @@ impl<'a, T> Iterator for StructVec5IterMut<'a, T> {
         if self.current < self.vec.count {
             let ptr: *mut T = &mut self.vec.items[self.current as usize];
             let reference = unsafe { &mut *ptr };
+            self.current += 1;
+            Some(reference)
+        } else {
+            None
+        }
+    }
+}
+
+pub struct StructVec5IterRef<'a, T> {
+    vec: &'a StructVec5<T>,
+    current: u8,
+}
+
+impl<'a, T> Iterator for StructVec5IterRef<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current < self.vec.count {
+            let ptr: *const T = &self.vec.items[self.current as usize];
+            let reference = unsafe { &*ptr };
             self.current += 1;
             Some(reference)
         } else {

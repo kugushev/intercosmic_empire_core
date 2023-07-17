@@ -27,7 +27,6 @@ pub const EMPTY_SPACESHIP_VM: u64 = 0;
 #[repr(C)]
 pub struct SpaceshipViewModel {
     pub id: u64,
-    // todo: if Unity->View has not the same ID, reset view
     pub translation: FFITranslation,
     pub faction: Faction,
     pub mark: SpaceshipMark,

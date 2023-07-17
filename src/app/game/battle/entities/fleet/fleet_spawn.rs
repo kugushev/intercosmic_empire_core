@@ -20,11 +20,8 @@ pub extern "C" fn ice_battle_fleet_spawn_begin(
 ) -> FFIResult<SpawnInfo> {
     current_battle_exec(context, |b| {
         let stellar_system = &mut b.stellar_system;
-        if let Some(fleet) = b.fleets.get_mut(&faction) {
-            fleet.spawn_prepare(spawner_id, stellar_system, builder_source, mark, faction)
-        } else {
-            Err(format!("Fleet not found {faction:?}"))
-        }
+        let fleet = b.fleets.get_fleet_mut(faction)?;
+        fleet.spawn_prepare(spawner_id, stellar_system, builder_source, mark, faction)
     })
 }
 
@@ -50,11 +47,8 @@ pub extern "C" fn ice_battle_fleet_spawn_finish(
 ) -> FFIOutcome {
     current_battle_exec(context, |b| {
         let stellar_system = &mut b.stellar_system;
-        if let Some(fleet) = b.fleets.get_mut(&info.faction) {
-            fleet.spawn_finish(info, finish_id, stellar_system)
-        } else {
-            Err(format!("Fleet not found {:?}", info.faction))
-        }
+        let fleet = b.fleets.get_fleet_mut(info.faction)?;
+        fleet.spawn_finish(info, finish_id, stellar_system)
     }).outcome
 }
 

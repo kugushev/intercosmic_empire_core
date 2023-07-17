@@ -85,6 +85,12 @@ namespace AK.Scripts.Core.Native
 
     }
 
+    public enum AiAgentType
+    {
+        NoOp = 0,
+        RandomSpawn = 1,
+    }
+
     public enum FFIOutcome
     {
         Ok = 0,
@@ -132,7 +138,9 @@ namespace AK.Scripts.Core.Native
         public ushort day_of_year;
         public Bool player_fleet_enabled;
         public Bool enemy_fleet_enabled;
+        public AiAgentType enemy_fleet_ai;
         public Bool ally_fleet_enabled;
+        public AiAgentType ally_fleet_ai;
     }
 
     [Serializable]

@@ -12,17 +12,11 @@ pub struct BattleViewModel<'a> {
 }
 
 impl<'a> BattleViewModel<'a> {
-    pub fn new(battle: &'a Battle) -> Self {
-        let mut fleets = StructVec5::default();
-        for faction in battle.fleets.keys() {
-            if let Err(error) = fleets.add(*faction) {
-                panic!("Can't fill fleet in view model {}", error)
-            }
-        }
-
-        Self {
+    pub fn new(battle: &'a Battle) -> Result<Self, String> {
+        let fleets = battle.fleets.get_fleets_factions()?;
+        Ok(Self {
             stellar_system: &battle.stellar_system,
             fleets,
-        }
+        })
     }
 }

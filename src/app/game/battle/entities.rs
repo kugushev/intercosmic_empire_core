@@ -5,4 +5,5 @@ pub mod fleet;
 pub mod astronomical_body;
 pub mod planet;
 pub mod spaceship;
+pub mod fleet_set;
 

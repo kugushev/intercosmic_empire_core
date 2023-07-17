@@ -4,6 +4,8 @@ use glam::Vec3;
 use interoptopus::ffi_type;
 use crate::app::game::core::stellar_system::spaceport::Spaceport;
 
+pub const GAP_BETWEEN_WAYPOINTS: f32 = 0.05;
+
 #[derive(Getters)]
 pub struct Route {
     waypoints: Vec<Vec3>,
@@ -35,10 +37,14 @@ pub struct RouteBuilders {
 }
 
 impl RouteBuilders {
+    pub fn drop_current(&mut self, builder_source: RouteBuildersSource) {
+        self.slots.remove(&builder_source);
+    }
+
     pub fn new_builders(&mut self, builder_source: RouteBuildersSource, start_position: Vec3,
                         start_spaceport: Spaceport) -> Result<i32, String> {
         if self.slots.contains_key(&builder_source) {
-            return Err(format!("Builder {builder_source:?} is still active").to_string());
+            return Err(format!("Builder {builder_source:?} is still active"));
         }
 
         self.counter += 1;
