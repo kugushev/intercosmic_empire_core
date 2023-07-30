@@ -21,6 +21,7 @@ pub fn my_inventory() -> Inventory {
         .register(function!(app::game::game_variants::sandbox::ice_sandbox_get_stellar_system_parameters))
         .register(function!(app::game::game_variants::sandbox::ice_sandbox_set_stellar_system_parameters))
         .register(function!(app::game::game_variants::sandbox::ice_sandbox_add_warpgate))
+        .register(function!(app::game::game_variants::sandbox::ice_sandbox_clean_warpgates))
         .register(function!(app::game::game_variants::sandbox::ice_sandbox_start_battle))
         .register(function!(app::game::game_variants::sandbox::ice_sandbox_stop_battle))
         // battle

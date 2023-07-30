@@ -62,6 +62,9 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_add_warpgate")]
         public static extern FFIOutcome ice_sandbox_add_warpgate(IntPtr context, Faction faction);
 
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_clean_warpgates")]
+        public static extern FFIOutcome ice_sandbox_clean_warpgates(IntPtr context);
+
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_start_battle")]
         public static extern FFIOutcome ice_sandbox_start_battle(IntPtr context);
 
@@ -163,7 +166,7 @@ namespace AK.Scripts.Core.Native
     public partial struct BattleViewModel
     {
         public IntPtr stellar_system;
-        public StructVec5Faction fleets;
+        public StructVec8Faction fleets;
     }
 
     [Serializable]
@@ -319,8 +322,8 @@ namespace AK.Scripts.Core.Native
     public partial struct StellarSystem
     {
         public StellarSystemInfo info;
-        public StructVec5Planet planets;
-        public StructVec5WarpGate warpgates;
+        public StructVec8Planet planets;
+        public StructVec8WarpGate warpgates;
     }
 
     [Serializable]
@@ -337,7 +340,7 @@ namespace AK.Scripts.Core.Native
         public StellarSystemId id;
         public Sun sun;
         public StellarSystemParameters parameters;
-        public StructVec5PlanetInfo planets;
+        public StructVec8PlanetInfo planets;
     }
 
     [Serializable]
@@ -355,49 +358,61 @@ namespace AK.Scripts.Core.Native
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct StructVec5Faction
+    public partial struct StructVec8Faction
     {
         Faction items0;
         Faction items1;
         Faction items2;
         Faction items3;
         Faction items4;
+        Faction items5;
+        Faction items6;
+        Faction items7;
         byte count;
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct StructVec5Planet
+    public partial struct StructVec8Planet
     {
         Planet items0;
         Planet items1;
         Planet items2;
         Planet items3;
         Planet items4;
+        Planet items5;
+        Planet items6;
+        Planet items7;
         byte count;
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct StructVec5PlanetInfo
+    public partial struct StructVec8PlanetInfo
     {
         PlanetInfo items0;
         PlanetInfo items1;
         PlanetInfo items2;
         PlanetInfo items3;
         PlanetInfo items4;
+        PlanetInfo items5;
+        PlanetInfo items6;
+        PlanetInfo items7;
         byte count;
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct StructVec5WarpGate
+    public partial struct StructVec8WarpGate
     {
         WarpGate items0;
         WarpGate items1;
         WarpGate items2;
         WarpGate items3;
         WarpGate items4;
+        WarpGate items5;
+        WarpGate items6;
+        WarpGate items7;
         byte count;
     }
 

@@ -14,7 +14,7 @@ use crate::app::game::core::stellar_system::sun::Sun;
 use crate::app::game::core::uniqueness_registry::UniquenessRegistry;
 use crate::app::utils::interop_logger::LoggerRef;
 use crate::app::utils::random::Random;
-use crate::app::utils::struct_vec::StructVec5;
+use crate::app::utils::struct_vec::StructVec8;
 use crate::ffi::surrogates::vec3;
 use crate::trace;
 
@@ -30,7 +30,7 @@ pub struct StellarSystemInfo {
     pub id: StellarSystemId,
     pub sun: Sun,
     pub parameters: StellarSystemParameters,
-    pub planets: StructVec5<PlanetInfo>,
+    pub planets: StructVec8<PlanetInfo>,
 }
 
 
@@ -43,8 +43,8 @@ impl StellarSystemInfo {
         Self { id, sun, parameters, planets }
     }
 
-    fn gen_planets(random: &mut Random, parameters: &StellarSystemParameters, uniqueness_registry: &mut UniquenessRegistry, logger: &LoggerRef) -> StructVec5<PlanetInfo> {
-        let mut result = StructVec5::default();
+    fn gen_planets(random: &mut Random, parameters: &StellarSystemParameters, uniqueness_registry: &mut UniquenessRegistry, logger: &LoggerRef) -> StructVec8<PlanetInfo> {
+        let mut result = StructVec8::default();
 
         let planets_count = random.range_inclusive(parameters.min_planets..=parameters.max_planets);
 
@@ -110,8 +110,8 @@ impl Default for StellarSystemParameters {
             center: Vec3::new(0.0, 1.5, 0.5),
             sun_min_radius: 0.05,
             sun_max_radius: 0.15,
-            min_planets: 2,
-            max_planets: 5,
+            min_planets: 3,
+            max_planets: 8,
         }
     }
 }
@@ -124,7 +124,7 @@ mod tests {
     use crate::app::game::core::stellar_system::planet_info::{PlanetId, PlanetInfo};
     use crate::app::game::core::stellar_system::planet_size::PlanetSize;
     use crate::app::game::core::stellar_system::sun::Sun;
-    use crate::app::utils::struct_vec::StructVec5;
+    use crate::app::utils::struct_vec::StructVec8;
 
 
     pub fn create_earth() -> PlanetInfo {
@@ -151,7 +151,7 @@ mod tests {
                 id: StellarSystemId(0),
                 sun: Sun::default(),
                 parameters: StellarSystemParameters::default(),
-                planets: StructVec5::new3(create_mercury(), create_earth(), create_jupiter()),
+                planets: StructVec8::new3(create_mercury(), create_earth(), create_jupiter()),
             }
         }
     }

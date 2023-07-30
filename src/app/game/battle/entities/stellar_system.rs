@@ -6,21 +6,21 @@ use crate::app::game::core::faction::Faction;
 use crate::app::game::core::stellar_system::StellarSystemInfo;
 use crate::app::utils::delta_time::DeltaTime;
 use crate::app::utils::interop_logger::LoggerRef;
-use crate::app::utils::struct_vec::StructVec5;
+use crate::app::utils::struct_vec::StructVec8;
 
 #[ffi_type]
 #[repr(C)]
 pub struct StellarSystem {
     pub info: StellarSystemInfo,
-    pub planets: StructVec5<Planet>,
-    pub warpgates: StructVec5<WarpGate>,
+    pub planets: StructVec8<Planet>,
+    pub warpgates: StructVec8<WarpGate>,
 }
 
 impl StellarSystem {
-    pub fn new(info: StellarSystemInfo, current_faction: Faction, warpgates: StructVec5<WarpGate>, day_of_year: u16) -> Self {
-        let planets = info.planets.map(|p| {
+    pub fn new(info: StellarSystemInfo, current_faction: Faction, warpgates: StructVec8<WarpGate>, day_of_year: u16) -> Self {
+        let planets = info.planets.iter_ref().map(|p| {
             Planet::new(p, current_faction, p.orbit.get_position(info.sun.position, day_of_year))
-        });
+        }).collect();
         Self { info, planets, warpgates }
     }
 

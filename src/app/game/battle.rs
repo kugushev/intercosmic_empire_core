@@ -16,7 +16,7 @@ use crate::app::game::core::stellar_system::StellarSystemInfo;
 use crate::app::game::GameContext;
 use crate::app::utils::delta_time::DeltaTime;
 use crate::app::utils::interop_logger::LoggerRef;
-use crate::app::utils::struct_vec::StructVec5;
+use crate::app::utils::struct_vec::StructVec8;
 use crate::ffi::utils::{FFIOutcome, FFIResult};
 
 #[ffi_function]
@@ -60,7 +60,7 @@ pub struct Battle {
 }
 
 impl Battle {
-    pub fn new(settings: BattleSettings, stellar_system_info: StellarSystemInfo, stellar_system_faction: Faction, warpgates: StructVec5<WarpGate>, logger: &LoggerRef) -> Self {
+    pub fn new(settings: BattleSettings, stellar_system_info: StellarSystemInfo, stellar_system_faction: Faction, warpgates: StructVec8<WarpGate>, logger: &LoggerRef) -> Self {
         let stellar_system = StellarSystem::new(stellar_system_info, stellar_system_faction, warpgates, settings.day_of_year);
         let fleets = FleetSet::new(&settings, logger);
         Self { stellar_system, fleets }
@@ -128,7 +128,7 @@ mod tests {
     use crate::app::game::core::stellar_system::StellarSystemInfo;
     use crate::app::utils::delta_time::DeltaTime;
     use crate::app::utils::interop_logger::LoggerRef;
-    use crate::app::utils::struct_vec::StructVec5;
+    use crate::app::utils::struct_vec::StructVec8;
 
     #[test]
     fn production_on_update() {
@@ -136,7 +136,7 @@ mod tests {
             BattleSettings::default(),
             StellarSystemInfo::default(),
             Faction::Red,
-            StructVec5::default(),
+            StructVec8::default(),
             &LoggerRef::default(),
         );
 

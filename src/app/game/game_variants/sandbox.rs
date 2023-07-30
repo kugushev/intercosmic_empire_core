@@ -9,7 +9,7 @@ use crate::app::game::core::uniqueness_registry::UniquenessRegistry;
 use crate::app::game::game_variants::GameVariant;
 use crate::app::utils::interop_logger::LoggerRef;
 use crate::app::utils::random::Random;
-use crate::app::utils::struct_vec::StructVec5;
+use crate::app::utils::struct_vec::StructVec8;
 use crate::ffi::utils::{FFIOutcome, FFIResult};
 
 #[ffi_function]
@@ -89,6 +89,20 @@ pub extern "C" fn ice_sandbox_add_warpgate(context: &mut AppContext, faction: Fa
 
 #[ffi_function]
 #[no_mangle]
+pub extern "C" fn ice_sandbox_clean_warpgates(context: &mut AppContext) -> FFIOutcome {
+    let guard = &mut context.guard;
+    if let Some(GameVariant::Sandbox(p)) = &mut context.game.variant {
+        let result = guard.wrap(|| {
+            p.clean_warpgates()
+        });
+        result.outcome
+    } else {
+        FFIOutcome::Unable
+    }
+}
+
+#[ffi_function]
+#[no_mangle]
 pub extern "C" fn ice_sandbox_start_battle(context: &mut AppContext) -> FFIOutcome {
     let guard = &mut context.guard;
     let logger = LoggerRef::new(&context.logger);
@@ -120,7 +134,7 @@ pub struct Sandbox {
     current_battle: Option<Battle>,
     battle_settings: BattleSettings,
     stellar_system_parameters: StellarSystemParameters,
-    warpgates: StructVec5<WarpGate>,
+    warpgates: StructVec8<WarpGate>,
     uniqueness_registry: UniquenessRegistry,
     random: Random,
 }
@@ -130,6 +144,11 @@ impl Sandbox {
         let position = WarpGate::generate_position(&mut self.random, &self.stellar_system_parameters);
         let warp_gate = WarpGate::new(position, faction, &mut self.uniqueness_registry);
         self.warpgates.add(warp_gate)
+    }
+
+    pub fn clean_warpgates(&mut self) -> Result<(), String> {
+        self.warpgates.clean();
+        Ok(())
     }
 
     pub fn start_battle(&mut self, logger: &LoggerRef) -> Result<(), String> {
@@ -183,7 +202,7 @@ impl Default for Sandbox {
             current_battle: None,
             stellar_system_parameters: StellarSystemParameters::default(),
             battle_settings,
-            warpgates: StructVec5::default(),
+            warpgates: StructVec8::default(),
             uniqueness_registry: UniquenessRegistry::default(),
             random,
         }

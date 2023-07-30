@@ -6,7 +6,7 @@ use crate::app::game::core::battle_settings::BattleSettings;
 use crate::app::game::core::faction::Faction;
 use crate::app::utils::delta_time::DeltaTime;
 use crate::app::utils::interop_logger::LoggerRef;
-use crate::app::utils::struct_vec::StructVec5;
+use crate::app::utils::struct_vec::StructVec8;
 use crate::trace;
 
 pub struct FleetSet {
@@ -62,8 +62,8 @@ impl FleetSet {
         }
     }
 
-    pub fn get_fleets_factions(&self) -> Result<StructVec5<Faction>, String> {
-        let mut fleets = StructVec5::default();
+    pub fn get_fleets_factions(&self) -> Result<StructVec8<Faction>, String> {
+        let mut fleets = StructVec8::default();
         if self.player_fleet.is_some() {
             fleets.add(Faction::Green)?;
         }

@@ -2,13 +2,13 @@ use interoptopus::ffi_type;
 use crate::app::game::battle::Battle;
 use crate::app::game::battle::entities::stellar_system::StellarSystem;
 use crate::app::game::core::faction::Faction;
-use crate::app::utils::struct_vec::StructVec5;
+use crate::app::utils::struct_vec::StructVec8;
 
 #[ffi_type]
 #[repr(C)]
 pub struct BattleViewModel<'a> {
     pub stellar_system: &'a StellarSystem,
-    pub fleets: StructVec5<Faction>,
+    pub fleets: StructVec8<Faction>,
 }
 
 impl<'a> BattleViewModel<'a> {
