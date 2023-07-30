@@ -102,6 +102,20 @@ pub extern "C" fn ice_sandbox_start_battle(context: &mut AppContext) -> FFIOutco
     }
 }
 
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_sandbox_stop_battle(context: &mut AppContext) -> FFIOutcome {
+    let guard = &mut context.guard;
+    if let Some(GameVariant::Sandbox(p)) = &mut context.game.variant {
+        let result = guard.wrap(|| {
+            p.stop_battle()
+        });
+        result.outcome
+    } else {
+        FFIOutcome::Unable
+    }
+}
+
 pub struct Sandbox {
     current_battle: Option<Battle>,
     battle_settings: BattleSettings,
@@ -138,6 +152,14 @@ impl Sandbox {
             logger,
         ));
 
+        Ok(())
+    }
+
+    pub fn stop_battle(&mut self) -> Result<(), String> {
+        if self.current_battle.is_none() {
+            return Err("Battle is not active".to_string());
+        }
+        self.current_battle = None;
         Ok(())
     }
 

@@ -38,23 +38,8 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_toggle_trace")]
         public static extern FFIOutcome ice_toggle_trace(IntPtr context, Bool enabled);
 
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_update")]
-        public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_get_vm")]
-        public static extern FFIResultBattleViewModel ice_battle_get_vm(IntPtr context);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_get_vm")]
-        public static extern FFIResultFleetViewModel ice_battle_fleet_get_vm(IntPtr context, Faction faction);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_spawn_begin")]
-        public static extern FFIResultSpawnInfo ice_battle_fleet_spawn_begin(IntPtr context, Faction faction, RouteBuildersSource builder_source, int spawner_id, SpaceshipMark mark);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_spawn_add_waypoint")]
-        public static extern FFIOutcome ice_battle_fleet_spawn_add_waypoint(IntPtr context, SpawnInfo info, ref Vector3 waypoint);
-
-        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_spawn_finish")]
-        public static extern FFIOutcome ice_battle_fleet_spawn_finish(IntPtr context, SpawnInfo info, int finish_id);
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_get_current_game_variant")]
+        public static extern FFIResultFFIGameVariant ice_get_current_game_variant(IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_start_sandbox")]
         public static extern FFIOutcome ice_start_sandbox(IntPtr context);
@@ -80,6 +65,30 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_start_battle")]
         public static extern FFIOutcome ice_sandbox_start_battle(IntPtr context);
 
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_sandbox_stop_battle")]
+        public static extern FFIOutcome ice_sandbox_stop_battle(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_is_active")]
+        public static extern FFIResultbool ice_battle_is_active(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_update")]
+        public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_get_vm")]
+        public static extern FFIResultBattleViewModel ice_battle_get_vm(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_get_vm")]
+        public static extern FFIResultFleetViewModel ice_battle_fleet_get_vm(IntPtr context, Faction faction);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_spawn_begin")]
+        public static extern FFIResultSpawnInfo ice_battle_fleet_spawn_begin(IntPtr context, Faction faction, RouteBuildersSource builder_source, int spawner_id, SpaceshipMark mark);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_spawn_add_waypoint")]
+        public static extern FFIOutcome ice_battle_fleet_spawn_add_waypoint(IntPtr context, SpawnInfo info, ref Vector3 waypoint);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_spawn_finish")]
+        public static extern FFIOutcome ice_battle_fleet_spawn_finish(IntPtr context, SpawnInfo info, int finish_id);
+
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_test_quat_look_rotation")]
         public static extern Quaternion ice_test_quat_look_rotation(Vector3 forward, Vector3 up);
 
@@ -89,6 +98,12 @@ namespace AK.Scripts.Core.Native
     {
         NoOp = 0,
         RandomSpawn = 1,
+    }
+
+    public enum FFIGameVariant
+    {
+        None = 0,
+        Sandbox = 1,
     }
 
     public enum FFIOutcome
@@ -169,6 +184,14 @@ namespace AK.Scripts.Core.Native
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFIResultFFIGameVariant
+    {
+        public FFIGameVariant value;
+        public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public partial struct FFIResultFleetViewModel
     {
         public FleetViewModel value;
@@ -188,6 +211,14 @@ namespace AK.Scripts.Core.Native
     public partial struct FFIResultStellarSystemParameters
     {
         public StellarSystemParameters value;
+        public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFIResultbool
+    {
+        public bool value;
         public FFIOutcome outcome;
     }
 

@@ -21,6 +21,17 @@ use crate::ffi::utils::{FFIOutcome, FFIResult};
 
 #[ffi_function]
 #[no_mangle]
+pub extern "C" fn ice_battle_is_active(context: &mut AppContext) -> FFIResult<bool> {
+    let guard = &mut context.guard;
+    let game = &mut context.game;
+    guard.wrap(|| {
+        let battle = Battle::current_ref(game);
+        Ok(battle.is_some())
+    })
+}
+
+#[ffi_function]
+#[no_mangle]
 pub extern "C" fn ice_battle_update(context: &mut AppContext, delta_time: f32) -> FFIOutcome {
     let logger = LoggerRef::new(&context.logger);
     let result = current_battle_exec(context, |b| {
