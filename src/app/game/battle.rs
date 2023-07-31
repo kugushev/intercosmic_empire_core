@@ -5,7 +5,7 @@ pub mod services;
 pub mod ai_agents;
 
 use interoptopus::ffi_function;
-use crate::app::AppContext;
+use crate::app::{AppContext, AppSettings};
 use crate::app::game::battle::entities::stellar_system::StellarSystem;
 use crate::app::game::battle::entities::warp_gate::WarpGate;
 use crate::app::game::battle::battle_view_model::BattleViewModel;
@@ -60,8 +60,12 @@ pub struct Battle {
 }
 
 impl Battle {
-    pub fn new(settings: BattleSettings, stellar_system_info: StellarSystemInfo, stellar_system_faction: Faction, warpgates: StructVec8<WarpGate>, logger: &LoggerRef) -> Self {
-        let stellar_system = StellarSystem::new(stellar_system_info, stellar_system_faction, warpgates, settings.day_of_year);
+    pub fn new(settings: BattleSettings, stellar_system_info: StellarSystemInfo, stellar_system_faction: Faction, warpgates: StructVec8<WarpGate>, logger: &LoggerRef, app_settings: &AppSettings) -> Self {
+        let stellar_system = StellarSystem::new(stellar_system_info,
+                                                stellar_system_faction,
+                                                warpgates,
+                                                settings.day_of_year,
+                                                app_settings.flat_mode);
         let fleets = FleetSet::new(&settings, logger);
         Self { stellar_system, fleets }
     }
@@ -122,6 +126,7 @@ pub fn current_battle_mut(game: &mut GameContext) -> Result<&mut Battle, String>
 
 #[cfg(test)]
 mod tests {
+    use crate::app::AppSettings;
     use crate::app::game::battle::Battle;
     use crate::app::game::core::battle_settings::BattleSettings;
     use crate::app::game::core::faction::Faction;
@@ -138,6 +143,7 @@ mod tests {
             Faction::Red,
             StructVec8::default(),
             &LoggerRef::default(),
+            &AppSettings::default()
         );
 
         assert_current_product(&mut battle, (0.0, 0.0, 0.0));

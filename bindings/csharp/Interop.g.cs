@@ -21,7 +21,7 @@ namespace AK.Scripts.Core.Native
 
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_init_app")]
-        public static extern FFIOutcome ice_init_app(ref IntPtr context);
+        public static extern FFIOutcome ice_init_app(ref IntPtr context, AppSettings settings);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_close_app")]
         public static extern FFIOutcome ice_close_app(ref IntPtr context);
@@ -146,6 +146,13 @@ namespace AK.Scripts.Core.Native
     public enum SpaceshipMark
     {
         Viper = 0,
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct AppSettings
+    {
+        public bool flat_mode;
     }
 
     [Serializable]

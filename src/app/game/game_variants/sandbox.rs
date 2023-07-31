@@ -1,5 +1,5 @@
 use interoptopus::ffi_function;
-use crate::app::AppContext;
+use crate::app::{AppContext, AppSettings};
 use crate::app::game::battle::Battle;
 use crate::app::game::battle::entities::warp_gate::WarpGate;
 use crate::app::game::core::battle_settings::BattleSettings;
@@ -77,9 +77,10 @@ pub extern "C" fn ice_sandbox_set_stellar_system_parameters(context: &mut AppCon
 #[no_mangle]
 pub extern "C" fn ice_sandbox_add_warpgate(context: &mut AppContext, faction: Faction) -> FFIOutcome {
     let guard = &mut context.guard;
+    let settings = &context.app_settings;
     if let Some(GameVariant::Sandbox(p)) = &mut context.game.variant {
         let result = guard.wrap(|| {
-            p.add_warpgate(faction)
+            p.add_warpgate(faction, settings)
         });
         result.outcome
     } else {
@@ -105,10 +106,11 @@ pub extern "C" fn ice_sandbox_clean_warpgates(context: &mut AppContext) -> FFIOu
 #[no_mangle]
 pub extern "C" fn ice_sandbox_start_battle(context: &mut AppContext) -> FFIOutcome {
     let guard = &mut context.guard;
+    let app_settings = &context.app_settings;
     let logger = LoggerRef::new(&context.logger);
     if let Some(GameVariant::Sandbox(p)) = &mut context.game.variant {
         let result = guard.wrap(|| {
-            p.start_battle(&logger)
+            p.start_battle(&logger, app_settings)
         });
         result.outcome
     } else {
@@ -140,8 +142,8 @@ pub struct Sandbox {
 }
 
 impl Sandbox {
-    pub fn add_warpgate(&mut self, faction: Faction) -> Result<(), String> {
-        let position = WarpGate::generate_position(&mut self.random, &self.stellar_system_parameters);
+    pub fn add_warpgate(&mut self, faction: Faction, app_settings: &AppSettings) -> Result<(), String> {
+        let position = WarpGate::generate_position(&mut self.random, &self.stellar_system_parameters, app_settings.flat_mode);
         let warp_gate = WarpGate::new(position, faction, &mut self.uniqueness_registry);
         self.warpgates.add(warp_gate)
     }
@@ -151,7 +153,7 @@ impl Sandbox {
         Ok(())
     }
 
-    pub fn start_battle(&mut self, logger: &LoggerRef) -> Result<(), String> {
+    pub fn start_battle(&mut self, logger: &LoggerRef, app_settings: &AppSettings) -> Result<(), String> {
         if self.current_battle.is_some() {
             return Err("Battle is already active".to_string());
         }
@@ -169,6 +171,7 @@ impl Sandbox {
             Faction::Red,
             self.warpgates.clone(),
             logger,
+            app_settings
         ));
 
         Ok(())

@@ -46,7 +46,7 @@ impl Orbit {
 
     fn generate_start_day(random: &mut Random) -> i32 { random.range_inclusive(0..=360) }
 
-    pub fn get_position(&self, sun_position: Vec3, day_of_year: u16) -> Vec3 {
+    pub fn get_position(&self, sun_position: Vec3, day_of_year: u16, flat_mode: bool) -> Vec3 {
         if self.start_day == MOCK_START_DAY {
             return Vec3::new(self.radius, self.alpha_rotation, self.beta_rotation);
         }
@@ -59,6 +59,10 @@ impl Orbit {
         let z = sun_position.z;
 
         let flat_position = Vec3::new(x, y, z);
+
+        if flat_mode {
+            return flat_position;
+        }
 
         let rotation = Quat::from_euler(EulerRot::default(),
                                         self.alpha_rotation + ALL_ORBITS_ANGLE,

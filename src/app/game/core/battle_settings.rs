@@ -24,7 +24,7 @@ impl Default for BattleSettings {
             enemy_fleet_enabled: FFIBool::TRUE,
             enemy_fleet_ai: AiAgentType::RandomSpawn,
             ally_fleet_enabled: FFIBool::TRUE,
-            ally_fleet_ai: AiAgentType::RandomSpawn
+            ally_fleet_ai: AiAgentType::RandomSpawn,
         }
     }
 }

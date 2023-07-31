@@ -49,9 +49,9 @@ impl WarpGate {
         }
     }
 
-    pub fn generate_position(random: &mut Random, stellar_system_parameters: &StellarSystemParameters) -> Vec3 {
+    pub fn generate_position(random: &mut Random, stellar_system_parameters: &StellarSystemParameters, flat_mode: bool) -> Vec3 {
         let orbit = Orbit::generate_for_warpgate(random, stellar_system_parameters);
-        orbit.get_position(stellar_system_parameters.center, 0)
+        orbit.get_position(stellar_system_parameters.center, 0, flat_mode)
     }
 }
 
