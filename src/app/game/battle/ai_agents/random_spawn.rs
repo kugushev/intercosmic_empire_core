@@ -8,15 +8,24 @@ use crate::app::game::battle::traits::productive::Productive;
 use crate::app::game::battle::traits::Spawner;
 use crate::app::game::core::faction::Faction;
 use crate::app::game::core::spaceship_info::SpaceshipMark;
+use crate::app::utils::delta_time::DeltaTime;
 use crate::app::utils::interop_logger::LoggerRef;
 use crate::app::utils::random::Random;
 use crate::trace;
 
-pub struct RandomSpawnAgent(Random);
+const SPAWN_COOLDOWN_SECONDS: f32 = 1.0;
+
+pub struct RandomSpawnAgent {
+    rand: Random,
+    cooldown: f32,
+}
 
 impl RandomSpawnAgent {
     pub fn new(seed: u64) -> Self {
-        Self(Random::new(seed))
+        Self {
+            rand: Random::new(seed),
+            cooldown: 0.0,
+        }
     }
 
     fn do_spawn(&mut self, spawner_id: i32, spawner_position: Vec3, mark: SpaceshipMark, stellar_system: &mut StellarSystem,
@@ -70,13 +79,18 @@ impl RandomSpawnAgent {
     }
 
     fn consider_as_target(&mut self, total_planets: u8) -> bool {
-        self.0.range(0..total_planets) == 0
+        self.rand.range(0..total_planets) == 0
     }
 }
 
 impl AiAgent for RandomSpawnAgent {
-    fn update(&mut self, stellar_system: &mut StellarSystem, my_fleet: &mut Fleet,
+    fn update(&mut self, stellar_system: &mut StellarSystem, delta: DeltaTime, my_fleet: &mut Fleet,
               _enemy_fleet1: Option<&Fleet>, _enemy_fleet2: Option<&Fleet>, logger: &LoggerRef) {
+        self.cooldown -= delta.seconds();
+        if self.cooldown > 0.0 {
+            return;
+        }
+
         let found = find_spawner(stellar_system, my_fleet, logger);
         let (spawner, mark) = match found {
             Some(t) => t,
@@ -88,6 +102,9 @@ impl AiAgent for RandomSpawnAgent {
 
         if let Err(error) = self.do_spawn(spawner_id, spawner_position, mark, stellar_system, my_fleet, logger) {
             trace!(logger, format!("AI RandomSpawnOnFull Spawn Error: {error}"))
+        }
+        else {
+            self.cooldown = SPAWN_COOLDOWN_SECONDS;
         }
     }
 }

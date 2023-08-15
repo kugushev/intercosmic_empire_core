@@ -46,12 +46,18 @@ impl PlanetSize {
 
     pub fn get_ratio(&self) -> f32 {
         match self {
-            PlanetSize::Mercury => { 0.45 }
-            PlanetSize::Mars => { 0.55 }
-            PlanetSize::Earth => { 0.63 }
-            PlanetSize::Uranus => { 0.81 }
-            PlanetSize::Saturn => { 0.9 }
-            PlanetSize::Jupiter => { 1.0 }
+            PlanetSize::Mercury => { 1.0 }
+            PlanetSize::Mars => { 1.4 }
+            PlanetSize::Earth => { 1.6 }
+            PlanetSize::Uranus => { 2.0 }
+            PlanetSize::Saturn => { 2.3 }
+            PlanetSize::Jupiter => { 2.5 }
+            // PlanetSize::Mercury => { 0.45 }
+            // PlanetSize::Mars => { 0.55 }
+            // PlanetSize::Earth => { 0.63 }
+            // PlanetSize::Uranus => { 0.81 }
+            // PlanetSize::Saturn => { 0.9 }
+            // PlanetSize::Jupiter => { 1.0 }
         }
     }
 }

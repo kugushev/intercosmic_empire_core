@@ -4,8 +4,6 @@ use glam::Vec3;
 use interoptopus::ffi_type;
 use crate::app::game::core::stellar_system::spaceport::Spaceport;
 
-pub const GAP_BETWEEN_WAYPOINTS: f32 = 0.05;
-
 #[derive(Getters)]
 pub struct Route {
     waypoints: Vec<Vec3>,
@@ -114,25 +112,18 @@ impl RouteBuilder {
             return Err(format!("Unexpected builder id {builder_id}, expected {}", self.id));
         }
 
-        let success = self.trim_route_tail(finish_position, finish_spaceport.clone());
+        self.trim_route_tail(finish_position, finish_spaceport.clone());
 
-        if self.raw_waypoints.len() == 0 {
+        if self.raw_waypoints.is_empty() {
             return Err("Empty waypoints".to_string());
         }
 
-        if success {
-            Ok(Route::new(self.raw_waypoints, self.start_position, self.start_spaceport,
-                          finish_position, finish_spaceport, finish_id))
-        } else {
-            let join = self.raw_waypoints.iter().fold("".to_string(), |mut a, v| {
-                a.push_str(format!("[{}]", v).as_str());
-                a
-            });
-            Err(format!("Trim tail failed. Finish: {finish_position} with {finish_spaceport}. Waypoints: {}", join).to_string())
-        }
+
+        Ok(Route::new(self.raw_waypoints, self.start_position, self.start_spaceport,
+                      finish_position, finish_spaceport, finish_id))
     }
 
-    fn trim_route_tail(&mut self, finish_position: Vec3, finish_spaceport: Spaceport) -> bool {
+    fn trim_route_tail(&mut self, finish_position: Vec3, finish_spaceport: Spaceport) {
         let mut trim_count = 0;
         for raw_waypoint in self.raw_waypoints.iter().rev() {
             if finish_position.distance(*raw_waypoint) >= *finish_spaceport.orbit_radius() {
@@ -143,11 +134,10 @@ impl RouteBuilder {
 
         let len = &self.raw_waypoints.len();
         if trim_count >= *len {
-            return false;
+            return;
         }
 
         let trim_from = len - trim_count;
         let _ = &self.raw_waypoints.drain(trim_from..);
-        return true;
     }
 }

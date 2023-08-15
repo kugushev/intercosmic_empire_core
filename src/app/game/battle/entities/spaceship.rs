@@ -7,18 +7,36 @@ mod behavior_disposed;
 mod behavior_attack;
 mod behavior_landed;
 
-use interoptopus::{ffi_surrogates, ffi_type};
+use interoptopus::{ffi_function, ffi_surrogates, ffi_type};
+use crate::app::AppContext;
 use crate::app::game::battle::entities::route::Route;
 use crate::app::game::battle::entities::spaceship::behavior::Behavior;
 use crate::app::game::battle::entities::spaceship::behavior_departure::BehaviorDeparture;
 use crate::app::game::battle::entities::spaceship::shared_state::SharedState;
 use crate::app::game::battle::entities::stellar_system::StellarSystem;
 use crate::app::game::core::faction::Faction;
+use crate::app::game::core::spaceship_info::spaceship_parameters::SpaceshipParameters;
 use crate::app::game::core::spaceship_info::SpaceshipMark;
 use crate::app::utils::delta_time::DeltaTime;
 use crate::app::utils::interop_logger::LoggerRef;
 use crate::app::utils::translation::FFITranslation;
 use crate::app::utils::zero;
+use crate::ffi::utils::FFIResult;
+
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_battle_spaceship_get_cost(
+    context: &mut AppContext,
+    faction: Faction,
+    mark: SpaceshipMark,
+) -> FFIResult<u8> {
+    let guard = &mut context.guard;
+
+    guard.wrap(|| {
+        let mark = SpaceshipParameters::get(mark);
+        Ok(mark.cost)
+    })
+}
 
 pub const EMPTY_SPACESHIP_VM: u64 = 0;
 

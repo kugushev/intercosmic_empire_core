@@ -15,7 +15,7 @@ impl Spaceport {
     pub fn new(size: PlanetSize) -> Self {
         let ratio = size.get_ratio();
         Self {
-            orbit_radius: 0.1 * ratio,
+            orbit_radius: 0.04 * ratio,//0.1 * ratio,
             surface_radius: 0.031 * ratio,
         }
     }

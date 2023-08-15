@@ -20,8 +20,8 @@ impl Production {
     pub fn warpgate() -> Self {
         // default value, should be the summ of the original planets power
         Self {
-            amount_per_second: 5.0,
-            max_product: 100.0
+            amount_per_second: 2.5,
+            max_product: 50.0
         }
     }
 

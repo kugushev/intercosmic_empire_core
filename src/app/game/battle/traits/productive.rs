@@ -1,5 +1,25 @@
+use interoptopus::ffi_function;
+use interoptopus::patterns::primitives::FFIBool;
+use crate::app::AppContext;
+use crate::app::game::battle::current_battle_exec;
 use crate::app::game::core::stellar_system::production::Production;
 use crate::app::utils::delta_time::DeltaTime;
+use crate::ffi::utils::FFIResult;
+
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_battle_productive_can_produce(
+    context: &mut AppContext,
+    spawner_id: i32,
+    cost: u8,
+) -> FFIResult<FFIBool> {
+    current_battle_exec(context, |b| {
+        let stellar_system = &mut b.stellar_system;
+        let spawner = stellar_system.find_spawner(spawner_id, false)?;
+        let can = spawner.can_produce(cost);
+        Ok(can.into())
+    })
+}
 
 pub trait Productive {
     fn get_id(&self) -> i32;

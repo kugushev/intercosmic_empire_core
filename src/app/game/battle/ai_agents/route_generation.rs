@@ -1,5 +1,5 @@
 use glam::Vec3;
-use crate::app::game::battle::entities::route::GAP_BETWEEN_WAYPOINTS;
+use crate::app::game::battle::constants::CONSTANTS;
 
 pub fn generate_waypoints(start: Vec3, anchors: impl Iterator<Item=Vec3>) -> Vec<Vec3> {
     let mut waypoints = vec![];
@@ -12,7 +12,7 @@ pub fn generate_waypoints(start: Vec3, anchors: impl Iterator<Item=Vec3>) -> Vec
             let offset_direction = direction.normalize() * offset_length;
             let offset_position = current + offset_direction;
 
-            let waypoint_direction = (next - offset_position).normalize() * GAP_BETWEEN_WAYPOINTS;
+            let waypoint_direction = (next - offset_position).normalize() * CONSTANTS.gap_between_waypoints;
             let waypoint_position = offset_position + waypoint_direction;
 
             waypoints.push(waypoint_position);
@@ -20,7 +20,7 @@ pub fn generate_waypoints(start: Vec3, anchors: impl Iterator<Item=Vec3>) -> Vec
             offset_length += waypoint_direction.length();
 
             // check on Null Vector
-            if waypoint_direction.length() <  GAP_BETWEEN_WAYPOINTS * 0.01 {
+            if waypoint_direction.length() < CONSTANTS.gap_between_waypoints * 0.01 {
                 break;
             }
         }

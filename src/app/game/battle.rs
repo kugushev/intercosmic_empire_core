@@ -3,12 +3,15 @@ pub mod entities;
 pub mod traits;
 pub mod services;
 pub mod ai_agents;
+pub mod constants;
 
 use interoptopus::ffi_function;
+use interoptopus::patterns::primitives::FFIBool;
 use crate::app::{AppContext, AppSettings};
 use crate::app::game::battle::entities::stellar_system::StellarSystem;
 use crate::app::game::battle::entities::warp_gate::WarpGate;
 use crate::app::game::battle::battle_view_model::BattleViewModel;
+use crate::app::game::battle::constants::{Constants, CONSTANTS};
 use crate::app::game::battle::entities::fleet_set::FleetSet;
 use crate::app::game::core::battle_settings::BattleSettings;
 use crate::app::game::core::faction::Faction;
@@ -21,12 +24,12 @@ use crate::ffi::utils::{FFIOutcome, FFIResult};
 
 #[ffi_function]
 #[no_mangle]
-pub extern "C" fn ice_battle_is_active(context: &mut AppContext) -> FFIResult<bool> {
+pub extern "C" fn ice_battle_is_active(context: &mut AppContext) -> FFIResult<FFIBool> {
     let guard = &mut context.guard;
     let game = &mut context.game;
     guard.wrap(|| {
         let battle = Battle::current_ref(game);
-        Ok(battle.is_some())
+        Ok(battle.is_some().into())
     })
 }
 
@@ -54,9 +57,28 @@ pub extern "C" fn ice_battle_get_vm(context: &mut AppContext) -> FFIResult<Battl
     })
 }
 
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_battle_get_settings(context: &mut AppContext) -> FFIResult<BattleSettings> {
+    let game = &mut context.game;
+    let guard = &mut context.guard;
+
+    guard.wrap(|| {
+        let battle = current_battle_ref(game)?;
+        Ok(battle.settings.clone())
+    })
+}
+
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_battle_get_constants() -> Constants {
+    CONSTANTS.clone()
+}
+
 pub struct Battle {
     stellar_system: StellarSystem,
     fleets: FleetSet,
+    settings: BattleSettings
 }
 
 impl Battle {
@@ -67,7 +89,7 @@ impl Battle {
                                                 settings.day_of_year,
                                                 app_settings.flat_mode);
         let fleets = FleetSet::new(&settings, logger);
-        Self { stellar_system, fleets }
+        Self { stellar_system, fleets, settings }
     }
 
     fn current_ref(game_context: &GameContext) -> Option<&Self> {
@@ -140,7 +162,7 @@ mod tests {
         let mut battle = Battle::new(
             BattleSettings::default(),
             StellarSystemInfo::default(),
-            Faction::Red,
+            Faction::Enemy,
             StructVec8::default(),
             &LoggerRef::default(),
             &AppSettings::default()

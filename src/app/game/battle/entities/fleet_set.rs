@@ -19,13 +19,13 @@ impl FleetSet {
     pub fn new(settings: &BattleSettings, logger: &LoggerRef) -> Self {
         let player_fleet = if settings.player_fleet_enabled == FFIBool::TRUE {
             trace!(logger, "Green fleet added");
-            Some(Fleet::new(Faction::Green))
+            Some(Fleet::new(Faction::Player))
         } else { None };
 
         let enemy_fleet: Option<(Fleet, Box<dyn AiAgent>)> = if settings.enemy_fleet_enabled == FFIBool::TRUE {
             trace!(logger, "Red fleet added");
             Some((
-                Fleet::new(Faction::Red),
+                Fleet::new(Faction::Enemy),
                 settings.enemy_fleet_ai.create_agent(settings.seed)
             ))
         } else { None };
@@ -33,7 +33,7 @@ impl FleetSet {
         let ally_fleet: Option<(Fleet, Box<dyn AiAgent>)> = if settings.ally_fleet_enabled == FFIBool::TRUE {
             trace!(logger, "Blue fleet added");
             Some((
-                Fleet::new(Faction::Blue),
+                Fleet::new(Faction::Ally),
                 settings.ally_fleet_ai.create_agent(settings.seed)
             ))
         } else { None };
@@ -46,15 +46,13 @@ impl FleetSet {
             fleet.update(stellar_system, delta, logger)
         }
         if let Some((fleet, agent)) = &mut self.enemy_fleet {
-            agent.update(stellar_system,
-                         fleet,
+            agent.update(stellar_system, delta, fleet,
                          self.player_fleet.as_ref(),
                          self.ally_fleet.as_ref().map(|t| &t.0), logger);
             fleet.update(stellar_system, delta, logger)
         }
         if let Some((fleet, agent)) = &mut self.ally_fleet {
-            agent.update(stellar_system,
-                         fleet,
+            agent.update(stellar_system, delta, fleet,
                          self.enemy_fleet.as_ref().map(|t| &t.0),
                          None,
                          logger);
@@ -65,31 +63,31 @@ impl FleetSet {
     pub fn get_fleets_factions(&self) -> Result<StructVec8<Faction>, String> {
         let mut fleets = StructVec8::default();
         if self.player_fleet.is_some() {
-            fleets.add(Faction::Green)?;
+            fleets.add(Faction::Player)?;
         }
         if self.enemy_fleet.is_some() {
-            fleets.add(Faction::Red)?;
+            fleets.add(Faction::Enemy)?;
         }
         if self.ally_fleet.is_some() {
-            fleets.add(Faction::Blue)?;
+            fleets.add(Faction::Ally)?;
         }
         Ok(fleets)
     }
 
     pub fn get_fleet_mut(&mut self, faction: Faction) -> Result<&mut Fleet, String> {
         match faction {
-            Faction::Green => { self.player_fleet.as_mut().ok_or("Green fleet not found".to_string()) }
-            Faction::Red => { self.enemy_fleet.as_mut().map(|p| &mut p.0).ok_or("Red fleet not found".to_string()) }
-            Faction::Blue => { self.ally_fleet.as_mut().map(|p| &mut p.0).ok_or("Blue fleet not found".to_string()) }
+            Faction::Player => { self.player_fleet.as_mut().ok_or("Green fleet not found".to_string()) }
+            Faction::Enemy => { self.enemy_fleet.as_mut().map(|p| &mut p.0).ok_or("Red fleet not found".to_string()) }
+            Faction::Ally => { self.ally_fleet.as_mut().map(|p| &mut p.0).ok_or("Blue fleet not found".to_string()) }
             _ => { Err(format!("Unexpected faction {faction:?}").to_string()) }
         }
     }
 
     pub fn get_fleet_ref(&self, faction: Faction) -> Result<&Fleet, String> {
         match faction {
-            Faction::Green => { self.player_fleet.as_ref().ok_or("Green fleet not found".to_string()) }
-            Faction::Red => { self.enemy_fleet.as_ref().map(|p| &p.0).ok_or("Red fleet not found".to_string()) }
-            Faction::Blue => { self.ally_fleet.as_ref().map(|p| &p.0).ok_or("Blue fleet not found".to_string()) }
+            Faction::Player => { self.player_fleet.as_ref().ok_or("Green fleet not found".to_string()) }
+            Faction::Enemy => { self.enemy_fleet.as_ref().map(|p| &p.0).ok_or("Red fleet not found".to_string()) }
+            Faction::Ally => { self.ally_fleet.as_ref().map(|p| &p.0).ok_or("Blue fleet not found".to_string()) }
             _ => { Err(format!("Unexpected faction {faction:?}").to_string()) }
         }
     }

@@ -26,6 +26,9 @@ namespace AK.Scripts.Core.Native
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_close_app")]
         public static extern FFIOutcome ice_close_app(ref IntPtr context);
 
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_stellar_system_get_default_parameters")]
+        public static extern StellarSystemParameters ice_stellar_system_get_default_parameters();
+
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_registry_get_planet_ratio")]
         public static extern float ice_registry_get_planet_ratio(PlanetSize size);
 
@@ -72,13 +75,19 @@ namespace AK.Scripts.Core.Native
         public static extern FFIOutcome ice_sandbox_stop_battle(IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_is_active")]
-        public static extern FFIResultbool ice_battle_is_active(IntPtr context);
+        public static extern FFIResultBool ice_battle_is_active(IntPtr context);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_update")]
         public static extern FFIOutcome ice_battle_update(IntPtr context, float delta_time);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_get_vm")]
         public static extern FFIResultBattleViewModel ice_battle_get_vm(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_get_settings")]
+        public static extern FFIResultBattleSettings ice_battle_get_settings(IntPtr context);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_get_constants")]
+        public static extern Constants ice_battle_get_constants();
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_get_vm")]
         public static extern FFIResultFleetViewModel ice_battle_fleet_get_vm(IntPtr context, Faction faction);
@@ -91,6 +100,24 @@ namespace AK.Scripts.Core.Native
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_spawn_finish")]
         public static extern FFIOutcome ice_battle_fleet_spawn_finish(IntPtr context, SpawnInfo info, int finish_id);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_deck_peek_left")]
+        public static extern FFIResultSpaceshipMark ice_battle_fleet_deck_peek_left(IntPtr context, Faction faction);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_deck_peek_right")]
+        public static extern FFIResultSpaceshipMark ice_battle_fleet_deck_peek_right(IntPtr context, Faction faction);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_deck_pop_left")]
+        public static extern FFIResultSpaceshipMark ice_battle_fleet_deck_pop_left(IntPtr context, Faction faction);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_fleet_deck_pop_right")]
+        public static extern FFIResultSpaceshipMark ice_battle_fleet_deck_pop_right(IntPtr context, Faction faction);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_spaceship_get_cost")]
+        public static extern FFIResultu8 ice_battle_spaceship_get_cost(IntPtr context, Faction faction, SpaceshipMark mark);
+
+        [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_battle_productive_can_produce")]
+        public static extern FFIResultBool ice_battle_productive_can_produce(IntPtr context, int spawner_id, byte cost);
 
         [DllImport(NativeLib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ice_test_quat_look_rotation")]
         public static extern Quaternion ice_test_quat_look_rotation(Vector3 forward, Vector3 up);
@@ -119,11 +146,11 @@ namespace AK.Scripts.Core.Native
 
     public enum Faction
     {
-        White = 0,
-        Red = 1,
-        Green = 2,
-        Blue = 3,
-        Grey = 4,
+        Neutral = 0,
+        Enemy = 1,
+        Player = 2,
+        Ally = 3,
+        Abandoned = 4,
     }
 
     public enum PlanetSize
@@ -178,6 +205,13 @@ namespace AK.Scripts.Core.Native
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    public partial struct Constants
+    {
+        public float gap_between_waypoints;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public partial struct FFIResultBattleSettings
     {
         public BattleSettings value;
@@ -189,6 +223,14 @@ namespace AK.Scripts.Core.Native
     public partial struct FFIResultBattleViewModel
     {
         public BattleViewModel value;
+        public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFIResultBool
+    {
+        public Bool value;
         public FFIOutcome outcome;
     }
 
@@ -210,6 +252,14 @@ namespace AK.Scripts.Core.Native
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    public partial struct FFIResultSpaceshipMark
+    {
+        public SpaceshipMark value;
+        public FFIOutcome outcome;
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public partial struct FFIResultSpawnInfo
     {
         public SpawnInfo value;
@@ -226,9 +276,9 @@ namespace AK.Scripts.Core.Native
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct FFIResultbool
+    public partial struct FFIResultu8
     {
-        public bool value;
+        public byte value;
         public FFIOutcome outcome;
     }
 

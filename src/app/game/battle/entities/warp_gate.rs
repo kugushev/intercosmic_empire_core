@@ -39,12 +39,14 @@ impl WarpGate {
 
 impl WarpGate {
     pub fn new(position: Vec3, faction: Faction, uniqueness_registry: &mut UniquenessRegistry) -> Self {
+        let production = Production::warpgate();
+        let current_product = production.max_product;
         Self {
             id: uniqueness_registry.next_warpgate_id(),
             position,
             faction,
-            production: Production::warpgate(),
-            current_product: 0.0,
+            production,
+            current_product,
             spaceport: Spaceport::warpgate(),
         }
     }

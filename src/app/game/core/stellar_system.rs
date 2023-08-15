@@ -5,7 +5,7 @@ pub mod spaceport;
 pub mod planet_size;
 pub mod orbit;
 
-use interoptopus::{ffi_surrogates, ffi_type};
+use interoptopus::{ffi_function, ffi_surrogates, ffi_type};
 use glam::Vec3;
 use crate::app::game::core::stellar_system::orbit::Orbit;
 use crate::app::game::core::stellar_system::planet_info::PlanetInfo;
@@ -17,6 +17,12 @@ use crate::app::utils::random::Random;
 use crate::app::utils::struct_vec::StructVec8;
 use crate::ffi::surrogates::vec3;
 use crate::trace;
+
+#[ffi_function]
+#[no_mangle]
+pub extern "C" fn ice_stellar_system_get_default_parameters() -> StellarSystemParameters {
+    StellarSystemParameters::default()
+}
 
 #[ffi_type]
 #[repr(C)]
@@ -70,7 +76,7 @@ impl StellarSystemInfo {
     fn get_planet_size(random: &mut Random, t: f32) -> PlanetSize {
         match t {
             _ if t < 0.33 => PlanetSize::Mercury,
-            _ if t < 0.66 => {
+            _ if t < 0.75 => {
                 let random_num = random.range_inclusive(PlanetSize::Mars.num()..=PlanetSize::Earth.num());
                 PlanetSize::from_num(random_num)
             }
@@ -147,11 +153,17 @@ mod tests {
 
     impl Default for StellarSystemInfo {
         fn default() -> Self {
+
+            let mut planets = StructVec8::default();
+            planets.add(create_mercury()).expect("Can't add vec");
+            planets.add(create_earth()).expect("Can't add vec");
+            planets.add(create_jupiter()).expect("Can't add vec");
+
             Self {
                 id: StellarSystemId(0),
                 sun: Sun::default(),
                 parameters: StellarSystemParameters::default(),
-                planets: StructVec8::new3(create_mercury(), create_earth(), create_jupiter()),
+                planets
             }
         }
     }

@@ -168,7 +168,7 @@ impl Sandbox {
         self.current_battle = Some(Battle::new(
             self.battle_settings.clone(),
             stellar_system_info,
-            Faction::Red,
+            Faction::Enemy,
             self.warpgates.clone(),
             logger,
             app_settings

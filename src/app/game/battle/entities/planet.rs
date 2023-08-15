@@ -5,6 +5,7 @@ use crate::app::game::battle::traits::productive::Productive;
 use crate::app::game::battle::traits::{AstronomicalBody, Belonging, Spawner};
 use crate::app::game::core::faction::Faction;
 use crate::app::game::core::stellar_system::planet_info::PlanetInfo;
+use crate::app::game::core::stellar_system::planet_size::PlanetSize;
 use crate::app::game::core::stellar_system::production::Production;
 use crate::app::game::core::stellar_system::spaceport::Spaceport;
 use crate::app::utils::delta_time::DeltaTime;
@@ -23,18 +24,29 @@ pub struct Planet {
 }
 
 impl Planet {
-    pub fn new(info: &PlanetInfo, faction: Faction, position: Vec3) -> Self {
+    pub fn new(info: &PlanetInfo, stellar_system_faction: Faction, position: Vec3) -> Self {
+        let faction = match info.size {
+            PlanetSize::Mercury => { stellar_system_faction }
+            PlanetSize::Mars => { stellar_system_faction }
+            PlanetSize::Earth => { stellar_system_faction }
+            PlanetSize::Uranus => { Faction::Abandoned }
+            PlanetSize::Saturn => { Faction::Abandoned }
+            PlanetSize::Jupiter => { Faction::Abandoned }
+        };
+
+        let current_product = if faction == Faction::Abandoned { info.production.max_product } else { 0.0 };
+
         Self {
             info: info.clone(),
             position,
             faction,
-            current_product: 0.0,
+            current_product,
             under_siege: FFIBool::FALSE,
         }
     }
 
     pub(crate) fn update(&mut self, delta: DeltaTime, _logger: &LoggerRef) {
-        if self.under_siege == FFIBool::FALSE {
+        if self.under_siege == FFIBool::FALSE && self.faction != Faction::Abandoned {
             self.increment(delta);
         }
     }
